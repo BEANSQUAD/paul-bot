@@ -1,11 +1,5 @@
 steps:
-    - name: ":golang:"
+    - name: ":docker: :hammer:"
       plugins:
-          - docker#v2.2.0:
-              image: "docker:latest"
-              workdir: /work
-              volumes:
-                - "paul-bot:/work"
-                - "/var/run/docker.sock:/var/run/docker.sock"
-      commands:
-          - "docker build . -t paul-bot:latest"
+          - docker-compose#v2.6.0:
+              run: paul-bot
