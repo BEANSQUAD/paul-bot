@@ -10,5 +10,5 @@ ADD . /go/paul-bot
 RUN go build -a -o paul-bot main.go
 
 FROM alpine
-COPY --from=proj_builder /go/paul-bot /bin/paul-bot
+COPY --from=proj_builder /go/paul-bot/paul-bot /bin/paul-bot
 CMD ["/bin/paul-bot"]
