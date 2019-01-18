@@ -7,8 +7,7 @@ before_deploy:
     - export REPO=$DOCKER_USERNAME/paul-bot
     - export TAG=$(if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi)
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    - docker build -t $REPO:$TRAVIS_COMMIT .
-    - docker tag $REPO:$TRAVIS_COMMIT $REPO:$TAG
+    - docker build -t $REPO:$TAG .
 deploy:
     provider: script
     script: docker push $REPO
