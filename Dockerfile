@@ -1,4 +1,5 @@
 FROM golang:alpine as builder
+RUN apk add --no-cache git
 ADD . /go/paul-bot
 WORKDIR /go/paul-bot
 RUN go mod download
