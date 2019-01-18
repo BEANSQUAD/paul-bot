@@ -1,5 +1,6 @@
 FROM golang:alpine as builder
-ADD . /go
+ADD . /go/paul-bot
+WORKDIR /go/paul-bot
 RUN go mod download
 RUN go build -a -o paul-bot main.go
 
