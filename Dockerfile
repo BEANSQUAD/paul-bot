@@ -1,7 +1,7 @@
 FROM golang:alpine as dep_builder
 RUN apk add --no-cache git gcc libc-dev
 WORKDIR /go/paul-bot
-COPY go.mod go.sum .
+COPY go.mod go.sum ./
 RUN go mod download
 
 FROM dep_builder as proj_builder
