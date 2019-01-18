@@ -10,5 +10,6 @@ ADD . /go/paul-bot
 RUN go build -a -o paul-bot main.go
 
 FROM alpine
+RUN apk add --no-cache ca-certificates
 COPY --from=proj_builder /go/paul-bot/paul-bot /bin/paul-bot
 CMD ["/bin/paul-bot"]
