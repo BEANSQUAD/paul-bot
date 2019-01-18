@@ -11,8 +11,7 @@ import (
 func main() {
 	// NOTE: All of the below fields are required for this example to work correctly.
 	var (
-		Email     = flag.String("e", "", "Discord account email.")
-		Password  = flag.String("p", "", "Discord account password.")
+		Token     = flag.String("t", "", "Discord bot token")
 		GuildID   = flag.String("g", "", "Guild ID")
 		ChannelID = flag.String("c", "", "Channel ID")
 		err       error
@@ -20,7 +19,7 @@ func main() {
 	flag.Parse()
 
 	// Connect to Discord
-	discord, err := discordgo.New(*Email, *Password)
+	discord, err := discordgo.New("Bot " + *Token)
 	if err != nil {
 		fmt.Println(err)
 		return
