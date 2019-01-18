@@ -1,3 +1,3 @@
 module github.com/BEANSQUAD/paul-bot
 
-require github.com/andersfylling/disgord v0.8.4 // indirect
+require github.com/bwmarrin/discordgo v0.19.0 // indirect
