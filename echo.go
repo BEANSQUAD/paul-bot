@@ -33,8 +33,8 @@ func main() {
 	}
 
 	// Connect to voice channel.
-	// NOTE: Setting mute to false, deaf to true.
-	dgv, err := discord.ChannelVoiceJoin(*GuildID, *ChannelID, false, true)
+	// NOTE: Setting mute to false, deaf to false.
+	dgv, err := discord.ChannelVoiceJoin(*GuildID, *ChannelID, false, false)
 	if err != nil {
 		fmt.Println(err)
 		return
