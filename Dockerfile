@@ -5,7 +5,7 @@ COPY go.mod go.sum .
 RUN go mod download
 
 FROM dep_builder as proj_builder
-ADD . /go/paul-bot
+COPY . /go/paul-bot
 RUN go build -a -o paul-bot main.go
 
 FROM alpine
