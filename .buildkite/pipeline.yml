@@ -4,7 +4,8 @@ steps:
           - "docker build . -t paul-bot:latest"
       plugins:
           - docker#v2.2.0:
-              image: "golang:alpine"
+              image: "docker:latest"
+              workdir: /work
               volumes:
-                - ".:/go/paul-bot"
+                - ".:/work"
                 - "/var/run/docker.sock:/var/run/docker.sock"
