@@ -1,0 +1,13 @@
+language: go
+
+services:
+    - docker
+
+before_deploy:
+    - export REPO=$DOCKER_USERNAME/paul-bot
+    - export TAG=$(if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH; fi)
+    - docker build -t $REPO:$TRAVIS_COMMIT .
+    - docker tag $REPO:$TRAVIS_COMMIT $REPO:$TAG
+deploy:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker push $REPO
