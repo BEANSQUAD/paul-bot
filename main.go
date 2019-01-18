@@ -49,7 +49,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	// If the message is "ping" reply with "Pong!"
 	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!2")
+		s.ChannelMessageSend(m.ChannelID, "Pong3!")
 	}
 
 	// If the message is "pong" reply with "Ping!"
