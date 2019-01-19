@@ -4,6 +4,6 @@ WORKDIR /app
 COPY go.mod go.sum /app/
 RUN go mod download
 COPY . /app
-RUN go build -v -a all
-RUN go build -v -a -o paul-bot main.go
+RUN go build -v all
+RUN go build -v -o paul-bot main.go
 CMD ["/app/paul-bot"]
