@@ -7,8 +7,12 @@ steps:
     - wait
     - name: "docker refresh"
       plugins:
-          - docker-compose#v2.6.0:
-              run: paul-bot
-              image-name: paul-bot:latest
+          - docker#v2.2.0:
+              image: "docker:latest"
+              volumes:
+                  - "/var/run/docker.sock:/var/run/docker.sock"
               env:
                   - DISCORD_TOKEN=$DISCORD_TOKEN
+      commands:
+          - "docker rm -f paul-bot"
+          - "docker run -e DISCORD_TOKEN=$DISCORD_TOKEN -d --name paul-bot paul-bot:latest"
