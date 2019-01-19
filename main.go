@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -15,7 +16,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	Token := string(dat)
+	Token := strings.Trim(string(dat), "\n")
 
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
