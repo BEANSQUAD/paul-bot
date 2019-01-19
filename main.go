@@ -63,6 +63,21 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "pong" {
 		s.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
+
+	tokens := strings.Split(m.Content, " ")
+	if tokens[0] == "!add" {
+		args := tokens[1:]
+		sum(args)
+	}
+}
+
+func sum(nums ...string) {
+	total := 0
+	for _, num := range nums {
+		num := int(num)
+		total += num
+	}
+	s.ChannelMessgeSend(m.ChannelID, total)
 }
 
 func onGuild(s *discordgo.Session, evt *discordgo.GuildCreate) {
