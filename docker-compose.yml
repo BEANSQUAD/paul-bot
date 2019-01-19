@@ -3,6 +3,8 @@ services:
   paul-bot:
     build: .
     image: paul-bot:latest
+    volumes:
+        - /var/cache/go-cache:/root/.cache/go-cache
     working_dir: /app
     volumes:
         - .:/app
