@@ -6,7 +6,7 @@ RUN go mod download
 
 FROM dep_builder as proj_builder
 COPY . /go/paul-bot
-RUN go build -a -o paul-bot main.go
+RUN go build -v -a -o paul-bot main.go
 
 FROM alpine
 RUN apk add --no-cache ca-certificates
