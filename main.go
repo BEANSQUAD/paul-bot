@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -67,14 +68,17 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	tokens := strings.Split(m.Content, " ")
 	if tokens[0] == "!add" {
 		args := tokens[1:]
-		s.ChannelMessageSend(m.ChannelID, sum(args))
+		s.ChannelMessageSend(m.ChannelID, strconv.Itoa(sum(args)))
 	}
 }
 
 func sum(nums []string) int {
 	total := 0
 	for _, num := range nums {
-		n := strconv.Atoi(num)
+		n, err := strconv.Atoi(num)
+		if err != nil {
+			fmt.Println("error casting string to int,", err)
+		}
 		total += n
 	}
 	return total
