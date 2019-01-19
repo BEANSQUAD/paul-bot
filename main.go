@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,7 +11,11 @@ import (
 )
 
 func main() {
-	Token := os.Getenv("DISCORD_TOKEN")
+	dat, err := ioutil.ReadFile("/etc/paul-bot.key")
+	if err != nil {
+		panic(err)
+	}
+	Token := string(dat)
 
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
