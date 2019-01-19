@@ -1,6 +1,14 @@
 steps:
-    - name: ":docker: :hammer:"
+    - name: "docker build"
       plugins:
           - docker-compose#v2.6.0:
               build: paul-bot
               image-name: paul-bot:latest
+    - wait
+    - name: "docker refresh"
+      plugins:
+          - docker-compose#v2.6.0:
+              run: paul-bot
+              image-name: paul-bot:latest
+              env:
+                  - DISCORD_TOKEN=$DISCORD_TOKEN
