@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	Token := strings.Trim(string(dat), "\n")
+	Token := strings.TrimSuffix(string(dat), "\n")
 
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
