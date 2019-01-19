@@ -58,6 +58,14 @@ func main() {
 	dg.Close()
 }
 
+// This function will be called (due to AddHandler above) when the bot receives
+// the "ready" event from Discord.
+func ready(s *discordgo.Session, event *discordgo.Ready) {
+
+	// Set the playing status.
+	s.UpdateStatus(0, "Botting It Up")
+}
+
 // This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the autenticated bot has access to.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -66,20 +74,44 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	// If the message is "ping" reply with "Pong!"
-	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong6!")
-	}
-
-	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
 
 	tokens := strings.Split(m.Content, " ")
 	if tokens[0] == "!add" {
 		args := tokens[1:]
 		s.ChannelMessageSend(m.ChannelID, strconv.Itoa(sum(args)))
+	}
+
+	if strings.HasPrefix(m.Content, "!stop"){
+
+	}
+
+	if strings.HasPrefix(m.Content, "!play") {
+
+		// Find the channel that the message came from.
+		c, err := s.State.Channel(m.ChannelID)
+		if err != nil {
+			// Could not find channel.
+			return
+		}
+
+		// Find the guild for that channel.
+		g, err := s.State.Guild(c.GuildID)
+		if err != nil {
+			// Could not find guild.
+			return
+		}
+
+		// Look for the message sender in that guild's current voice states.
+		for _, vs := range g.VoiceStates {
+			if vs.UserID == m.Author.ID {
+				go playSound(s, g.ID, vs.ChannelID, strings.TrimLeft(m.Content, "!play "))
+				if err != nil {
+					fmt.Println("Error playing sound:", err)
+				}
+
+				return
+			}
+		}
 	}
 }
 
