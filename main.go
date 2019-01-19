@@ -1,15 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"syscall"
+	"time"
+	"log"
+	"net/http"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/rylio/ytdl"
+	"github.com/jonas747/dca"
+
+	"google.golang.org/api/youtube/v3"
+	"google.golang.org/api/googleapi/transport"
 )
 
 func main() {
