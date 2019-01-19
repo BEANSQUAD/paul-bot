@@ -27,7 +27,7 @@ func main() {
 
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(messageCreate)
-	dg.AddHandler(onReady)
+	dg.AddHandler(onGuild)
 
 	// Open a websocket connection to Discord and begin listening.
 	err = dg.Open()
@@ -65,8 +65,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func onReady(s *discordgo.Session, m *discordgo.Ready) {
-	for _, v := range m.Guilds {
-		s.ChannelMessageSend(v.SystemChannelID, "good2go")
-	}
+func onGuild(s *discordgo.Session, evt *discordgo.GuildCreate) {
+	s.ChannelMessageSend(evt.SystemChannelID, "good2go")
 }
