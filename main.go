@@ -127,6 +127,86 @@ func sum(nums []string) int {
 	return total
 }
 
-func onGuild(s *discordgo.Session, evt *discordgo.GuildCreate) {
-	s.ChannelMessageSend(evt.SystemChannelID, "good2go")
+// This function will be called (due to AddHandler above) every time a new
+// guild is joined.
+func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
+
+	if event.Guild.Unavailable {
+		return
+	}
+
+	for _, channel := range event.Guild.Channels {
+		if channel.ID == event.Guild.ID {
+			_, _ = s.ChannelMessageSend(channel.ID, "bot")
+			return
+		}
+	}
 }
+
+// playSound plays the current buffer to the provided channel.
+func playSound(s *discordgo.Session, guildID, channelID string, search string){
+
+	videos := ytSearch(search, 1)
+	var vids []string
+
+	for id := range videos {
+		vids = append(vids, id);
+	}
+
+	// Join the provided voice channel.
+	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
+	if err != nil {
+	}
+
+	// Sleep for a specified amount of time before playing the sound
+	time.Sleep(250 * time.Millisecond)
+
+	// Start speaking.
+	vc.Speaking(true)
+	
+	// Change these accordingly
+	options := dca.StdEncodeOptions
+	options.RawOutput = true
+	options.Bitrate = 64
+	options.Application = "lowdelay"
+	options.Volume = 256
+	options.CompressionLevel = 10
+	options.PacketLoss = 1
+	options.BufferedFrames = 100
+
+	videoInfo, err := ytdl.GetVideoInfo(vids[0])
+	if err != nil{
+	}
+
+	format := videoInfo.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
+	downloadURL, err := videoInfo.GetDownloadURL(format)
+	if err != nil{
+	}
+
+	fmt.Println("1")
+
+	encodingSession, err := dca.EncodeFile(downloadURL.String(), options)
+	if err != nil{
+	}
+	defer encodingSession.Cleanup()
+
+	fmt.Println("2")
+
+	done := make(chan error)    
+	vidSesh = dca.NewStream(encodingSession, vc, done)
+	err = <- done
+	if err != nil{
+	}
+
+	fmt.Println("3")
+
+	// Stop speaking
+	vc.Speaking(false)
+
+	// Sleep for a specificed amount of time before ending.
+	time.Sleep(250 * time.Millisecond)
+
+	// Disconnect from the provided voice channel.
+	vc.Disconnect()
+}
+
