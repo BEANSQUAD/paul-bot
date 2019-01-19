@@ -67,17 +67,17 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	tokens := strings.Split(m.Content, " ")
 	if tokens[0] == "!add" {
 		args := tokens[1:]
-		sum(args)
+		s.ChannelMessageSend(m.ChannelID, sum(args))
 	}
 }
 
-func sum(nums []string) {
+func sum(nums []string) int {
 	total := 0
 	for _, num := range nums {
-		n := fmt.Sprintf("%d", num)
+		n := strconv.Atoi(num)
 		total += n
 	}
-	s.ChannelMessgeSend(m.ChannelID, total)
+	return total
 }
 
 func onGuild(s *discordgo.Session, evt *discordgo.GuildCreate) {
