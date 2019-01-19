@@ -2,6 +2,8 @@ version: '3'
 services:
   paul-bot:
     build: .
+    environment:
+        - GO111MODULES=on
     image: paul-bot:latest
     working_dir: /app
     volumes:

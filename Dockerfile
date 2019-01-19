@@ -1,4 +1,3 @@
-ENV GO111MODULES=on
 ARG PROJPATH=/go/src/github.com/BEANSQUAD/paul-bot
 
 FROM golang:alpine as dep_builder

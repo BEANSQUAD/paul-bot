@@ -1,0 +1,16 @@
+{
+"avatar_url": "https://buildkite.com/_next/static/assets/assets/images/brand-assets/buildkite-mark-on-dark-325b4529.png",
+"embeds": [{
+    "title": "{{50372496__pipeline__name}} ({{50372496__build__branch}})  build #{{50372496__build__number}}",
+    "description":"commit: [{{50372496__build__message}} ({{50372496__build__commit}})](https://github.com/BEANSQUAD/paul-bot/commit/{{50372496__build__commit}})\nstate: {{50372496__build__state}}",
+    "url":"{{50372496__build__web_url}}",
+    "color": {{50374509__output}},
+    "image": {
+      "url": "{{50372496__pipeline__badge_url}}"
+    },
+    "author": {
+      "name": "{{50372496__build__creator__name}}",
+      "icon_url": "{{50372496__build__creator__avatar_url}}"
+    }
+  }]
+}
