@@ -71,11 +71,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func sum(nums ...string) {
+func sum(nums []string) {
 	total := 0
 	for _, num := range nums {
-		num := int(num)
-		total += num
+		n := fmt.Sprintf("%d", num)
+		total += n
 	}
 	s.ChannelMessgeSend(m.ChannelID, total)
 }
