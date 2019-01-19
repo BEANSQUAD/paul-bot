@@ -1,18 +1,8 @@
-FROM golang:alpine as dep_builder
-ARG PROJPATH=/go/src/github.com/BEANSQUAD/paul-bot
-RUN apk add --no-cache git gcc libc-dev
-WORKDIR $PROJPATH
-COPY go.mod go.sum ./
+FROM golang:alpine
+RUN apk add --no-cache git gcc libc-dev ca-certificates
+WORKDIR /app
+COPY go.mod go.sum /app
 RUN go mod download
-RUN go build -v all
-
-FROM dep_builder as proj_builder
-ARG PROJPATH=/go/src/github.com/BEANSQUAD/paul-bot
-COPY . $PROJPATH
-COPY --from=dep_builder /root/.cache/go-cache /root/.cache/go-cache
+COPY . /app
 RUN go build -v -a -o paul-bot main.go
-
-FROM alpine
-RUN apk add --no-cache ca-certificates
-COPY --from=proj_builder $PROJPATH/paul-bot /paul-bot
-CMD ["/paul-bot"]
+CMD ["/app/paul-bot"]
