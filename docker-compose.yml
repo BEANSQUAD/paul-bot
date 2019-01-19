@@ -4,7 +4,6 @@ services:
     build: .
     environment:
         - GO111MODULES=on
-        - PROJPATH=/go/src/github.com/BEANSQUAD/paul-bot
     image: paul-bot:latest
     working_dir: /app
     volumes:

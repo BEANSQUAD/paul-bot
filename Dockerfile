@@ -1,3 +1,5 @@
+ARG PROJPATH=/go/src/github.com/BEANSQUAD/paul-bot
+
 FROM golang:alpine as dep_builder
 RUN apk add --no-cache git gcc libc-dev
 WORKDIR $PROJPATH
