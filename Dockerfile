@@ -1,5 +1,4 @@
 FROM golang:alpine as dep_builder
-ENV GO111MODULES=on
 ARG PROJPATH=/go/src/github.com/BEANSQUAD/paul-bot
 RUN apk add --no-cache git gcc libc-dev
 WORKDIR $PROJPATH
@@ -8,7 +7,6 @@ RUN go mod download
 RUN go build -v all
 
 FROM dep_builder as proj_builder
-ENV GO111MODULES=on
 ARG PROJPATH=/go/src/github.com/BEANSQUAD/paul-bot
 COPY . $PROJPATH
 COPY --from=dep_builder /root/.cache/go-cache /root/.cache/go-cache
