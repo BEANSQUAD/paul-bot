@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	config := SetupConfig()
+	SetupConfig()
 	if !config.IsSet("DiscordKey") {
 		log.Panicf("couldn't read DiscordKey from config file: %v", config.ConfigFileUsed())
 	}
