@@ -19,7 +19,6 @@ func main() {
 	}
 	Token := strings.TrimSuffix(string(dat), "\n")
 
-	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
@@ -36,40 +35,28 @@ func main() {
 		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
 	})
 
-	// Register ready as a callback for the ready events.
 	dg.AddHandler(ready)
-
-	// Register guildCreate as a callback for the guildCreate events.
 	dg.AddHandler(guildCreate)
 
-	// Open the websocket and begin listening.
+	// Open the websocket and begin listening for events.
 	err = dg.Open()
 	if err != nil {
 		fmt.Println("Error opening Discord session: ", err)
 	}
 
-	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
-	// Cleanly close down the Discord session.
 	dg.Close()
 }
 
-// This function will be called (due to AddHandler above) when the bot receives
-// the "ready" event from Discord.
 func ready(s *discordgo.Session, event *discordgo.Ready) {
-
-	// Set the playing status.
 	s.UpdateStatus(0, "Botting It Up")
 }
 
-// This function will be called (due to AddHandler above) every time a new
-// guild is joined.
 func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
-
 	if event.Guild.Unavailable {
 		return
 	}
