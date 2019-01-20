@@ -16,12 +16,7 @@ import (
 )
 
 func Play(ctx *exrouter.Context) {
-	c, err := ctx.Ses.State.Channel(ctx.Msg.ChannelID)
-	if err != nil {
-		return
-	}
-
-	g, err := ctx.Ses.State.Guild(c.GuildID)
+	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	if err != nil {
 		return
 	}
