@@ -1,11 +1,11 @@
-package sum
+package math
 
 import (
 	"fmt"
 	"strconv"
 )
 
-func sum(nums []string) int {
+func Add(nums []string) int {
 	total := 0
 	for _, num := range nums {
 		n, err := strconv.Atoi(num)
