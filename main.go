@@ -9,6 +9,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -25,6 +26,14 @@ func main() {
 		fmt.Println("Error creating Discord session: ", err)
 		return
 	}
+
+	router := exrouter.New()
+
+	router.On("add", Add).Desc("adds numbers together")
+
+	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
+		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
+	})
 
 	// Register ready as a callback for the ready events.
 	dg.AddHandler(ready)

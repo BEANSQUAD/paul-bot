@@ -1,6 +1,7 @@
 module github.com/BEANSQUAD/paul-bot
 
 require (
+	github.com/Necroforger/dgrouter v0.0.0-20190109213045-8092ffb0d2d4
 	github.com/PuerkitoBio/goquery v1.5.0 // indirect
 	github.com/bwmarrin/discordgo v0.19.0
 	github.com/jonas747/dca v0.0.0-20180225204759-bf5d11669cdb
