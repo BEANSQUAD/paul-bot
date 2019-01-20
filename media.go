@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -21,8 +22,8 @@ type Player struct {
 	sSession *dca.StreamingSession
 }
 
-func handleErr(err error, output string){
-	log.Printf(output + ", Error: %v", err)
+func handleErr(err error, output string) {
+	log.Printf(output+", Error: %v", err)
 }
 
 func Info(ctx *exrouter.Context){
@@ -40,7 +41,11 @@ func Play(ctx *exrouter.Context) {
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 
-	videos := ytSearch(ctx.Args.After(1), 1)
+	videos, err := ytSearch(ctx.Args.After(1), 1)
+	if err != nil {
+		ctx.Reply(fmt.Errorf("error in ytSearch: %v", err))
+	}
+
 	var vids []string
 		for id := range videos {
 		vids = append(vids, id)
@@ -53,11 +58,14 @@ func Play(ctx *exrouter.Context) {
 	}
 }
 
-const developerKey = "AIzaSyDxE51o2JqlECAQYCMJ9ytjYzgLH_uON-Y" //this is temp and a bit of a bodge to get the youtube API working for now
-
-func ytSearch(query string, maxResults int64) map[string]string {
+func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
+	if !config.IsSet("GoogleAPIKey") {
+		err := fmt.Errorf("GoogleAPIKey is not set in config: %v", config.ConfigFileUsed())
+		log.Print(err)
+		return nil, err
+	}
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: developerKey},
+		Transport: &transport.APIKey{Key: config.GetString("GoogleAPIKey")},
 	}
 
 	service, err := youtube.New(client)
@@ -70,7 +78,7 @@ func ytSearch(query string, maxResults int64) map[string]string {
 	response, err := call.Do()
 	handleErr(err, "Error Listing Youtube Videos With Query")
 
-	videos := make(map[string]string)
+	videos = make(map[string]string)
 	channels := make(map[string]string)
 	playlists := make(map[string]string)
 
@@ -84,7 +92,7 @@ func ytSearch(query string, maxResults int64) map[string]string {
 			playlists[item.Id.PlaylistId] = item.Snippet.Title
 		}
 	}
-	return videos
+	return videos, nil
 }
 
 func playSound(s *discordgo.Session, guildID, channelID string, videoID string) {

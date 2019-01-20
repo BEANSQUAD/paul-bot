@@ -6,8 +6,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-func SetupConfig() *viper.Viper {
-	config := viper.New()
+var config *viper.Viper
+
+func SetupConfig() {
+	config = viper.New()
 	config.SetConfigType("toml")
 	config.SetConfigName("config")
 	config.AddConfigPath("/etc/paul-bot")
@@ -16,5 +18,4 @@ func SetupConfig() *viper.Viper {
 	if err != nil {
 		log.Panicf("error reading config file: %v", err)
 	}
-	return config
 }
