@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -15,13 +15,13 @@ import (
 func main() {
 	dat, err := ioutil.ReadFile("/etc/paul-bot.key")
 	if err != nil {
-		panic(err)
+		log.Panicf("couldn't read /etc/paul-bot.key: %v", err)
 	}
 	Token := strings.TrimSuffix(string(dat), "\n")
 
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
-		fmt.Println("Error creating Discord session: ", err)
+		log.Printf("Error creating Discord session: %v", err)
 		return
 	}
 
@@ -41,10 +41,10 @@ func main() {
 	// Open the websocket and begin listening for events.
 	err = dg.Open()
 	if err != nil {
-		fmt.Println("Error opening Discord session: ", err)
+		log.Printf("Error opening Discord session: %v", err)
 	}
 
-	fmt.Println("running.  Press CTRL-C to exit.")
+	log.Println("running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
@@ -63,7 +63,10 @@ func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
 
 	for _, channel := range event.Guild.Channels {
 		if channel.ID == event.Guild.ID {
-			_, _ = s.ChannelMessageSend(channel.ID, "bot")
+			_, err := s.ChannelMessageSend(channel.ID, "bot")
+			if err != nil {
+				log.Printf("couldn't send guild startup message %v", err)
+			}
 		}
 	}
 }

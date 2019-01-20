@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -25,7 +24,7 @@ func Play(ctx *exrouter.Context) {
 		if vs.UserID == ctx.Msg.Author.ID {
 			go playSound(ctx.Ses, g.ID, vs.ChannelID, ctx.Args.After(1))
 			if err != nil {
-				fmt.Println("Error playing sound:", err)
+				log.Printf("Error playing sound: %v", err)
 			}
 			return
 		}
@@ -102,14 +101,14 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	if err != nil {
 	}
 
-	fmt.Println("1")
+	log.Println("1")
 
 	encodingSession, err := dca.EncodeFile(downloadURL.String(), options)
 	if err != nil {
 	}
 	defer encodingSession.Cleanup()
 
-	fmt.Println("2")
+	log.Println("2")
 
 	done := make(chan error)
 	dca.NewStream(encodingSession, vc, done)
@@ -118,7 +117,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	}
 	time.Sleep(250 * time.Millisecond)
 
-	fmt.Println("3")
+	log.Println("3")
 
 	vc.Speaking(false)
 

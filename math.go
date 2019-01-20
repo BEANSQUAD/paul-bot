@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/Necroforger/dgrouter/exrouter"
@@ -12,7 +12,7 @@ func Add(ctx *exrouter.Context) {
 	for _, num := range ctx.Args {
 		n, err := strconv.Atoi(num)
 		if err != nil {
-			fmt.Println("error casting string to int,", err)
+			log.Printf("error casting string to int: %v", err)
 		}
 		total += n
 	}
