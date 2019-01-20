@@ -1,5 +1,5 @@
 FROM golang:alpine as builder
-RUN apk add --no-cache git gcc libc-dev
+RUN apk add --no-cache git gcc libc-dev ca-certificates
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
