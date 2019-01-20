@@ -8,6 +8,7 @@ github.com/Necroforger/dgrouter \
 github.com/Necroforger/dgrouter/exrouter \
 github.com/jonas747/dca \
 github.com/rylio/ytdl \
+github.com/spf13/viper \
 google.golang.org/api/youtube/v3 \
 google.golang.org/api/googleapi/transport
 COPY . /app
