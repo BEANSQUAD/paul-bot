@@ -30,6 +30,8 @@ func main() {
 
 	router.On("add", Add).Desc("adds numbers together")
 
+	router.On("play", Play).Desc("plays youtube videos' audio")
+
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
 		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
 	})
@@ -74,39 +76,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
-	}
-
-	if strings.HasPrefix(m.Content, "!stop") {
-
-	}
-
-	if strings.HasPrefix(m.Content, "!play") {
-
-		// Find the channel that the message came from.
-		c, err := s.State.Channel(m.ChannelID)
-		if err != nil {
-			// Could not find channel.
-			return
-		}
-
-		// Find the guild for that channel.
-		g, err := s.State.Guild(c.GuildID)
-		if err != nil {
-			// Could not find guild.
-			return
-		}
-
-		// Look for the message sender in that guild's current voice states.
-		for _, vs := range g.VoiceStates {
-			if vs.UserID == m.Author.ID {
-				go PlaySound(s, g.ID, vs.ChannelID, strings.TrimLeft(m.Content, "!play "))
-				if err != nil {
-					fmt.Println("Error playing sound:", err)
-				}
-
-				return
-			}
-		}
 	}
 }
 

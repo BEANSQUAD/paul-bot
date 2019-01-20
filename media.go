@@ -5,13 +5,48 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
 	"github.com/rylio/ytdl"
+	"github.com/Necroforger/dgrouter/exrouter"
+
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/youtube/v3"
 )
+
+func Play(ctx *exrouter.Context){
+
+	m := ctx.Msg
+	s := ctx.Ses
+
+	// Find the channel that the message came from.
+	c, err := s.State.Channel(m.ChannelID)
+	if err != nil {
+		// Could not find channel.
+		return
+	}
+
+	// Find the guild for that channel.
+	g, err := s.State.Guild(c.GuildID)
+	if err != nil {
+		// Could not find guild.
+		return
+	}
+
+	// Look for the message sender in that guild's current voice states.
+	for _, vs := range g.VoiceStates {
+		if vs.UserID == m.Author.ID {
+			go playSound(s, g.ID, vs.ChannelID, strings.TrimLeft(m.Content, "!play "))
+			if err != nil {
+				fmt.Println("Error playing sound:", err)
+			}
+
+			return
+		}
+	}
+}
 
 const developerKey = "AIzaSyDxE51o2JqlECAQYCMJ9ytjYzgLH_uON-Y" //this is temp and a bit of a bodge to get the youtube API working for now
 
@@ -54,7 +89,7 @@ func ytSearch(query string, maxResults int64) map[string]string {
 }
 
 // PlaySound plays the current buffer to the provided channel.
-func PlaySound(s *discordgo.Session, guildID, channelID string, search string) {
+func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	videos := ytSearch(search, 1)
 	var vids []string
 
