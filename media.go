@@ -14,18 +14,17 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
+func handleErr(err error, output string){
+	log.Panicf(output + ", Error: %v", err)
+}
+
 func Play(ctx *exrouter.Context) {
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
-	if err != nil {
-		return
-	}
+	handleErr(err, "Error Getting Guild Information")
 
 	for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
 			go playSound(ctx.Ses, g.ID, vs.ChannelID, ctx.Args.After(1))
-			if err != nil {
-				log.Printf("Error playing sound: %v", err)
-			}
 			return
 		}
 	}
@@ -39,17 +38,14 @@ func ytSearch(query string, maxResults int64) map[string]string {
 	}
 
 	service, err := youtube.New(client)
-	if err != nil {
-		log.Fatalf("Error creating new YouTube client: %v", err)
-	}
+	handleErr(err, "Error Creating New Youtube Client")
 
 	// Make the API call to YouTube.
 	call := service.Search.List("id,snippet").
 		Q(query).
 		MaxResults(maxResults)
 	response, err := call.Do()
-	if err != nil {
-	}
+	handleErr(err, "Error Listing Youtube Videos With Query")
 
 	videos := make(map[string]string)
 	channels := make(map[string]string)
@@ -77,8 +73,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	}
 
 	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
-	if err != nil {
-	}
+	handleErr(err, "Error Joining Specified Voice Channel")
 
 	vc.Speaking(true)
 	time.Sleep(250 * time.Millisecond)
@@ -93,31 +88,21 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	options.BufferedFrames = 100
 
 	videoInfo, err := ytdl.GetVideoInfo(vids[0])
-	if err != nil {
-	}
+	handleErr(err, "Error Getting Specified Youtube Video Info")
 
 	format := videoInfo.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
 	downloadURL, err := videoInfo.GetDownloadURL(format)
-	if err != nil {
-	}
-
-	log.Println("1")
+	handleErr(err, "Error Downloading Youtube Video")
 
 	encodingSession, err := dca.EncodeFile(downloadURL.String(), options)
-	if err != nil {
-	}
+	handleErr(err, "Error Encoding Audio File")
 	defer encodingSession.Cleanup()
-
-	log.Println("2")
 
 	done := make(chan error)
 	dca.NewStream(encodingSession, vc, done)
 	err = <-done
-	if err != nil {
-	}
+	handleErr(err, "Error Streaming Audio File")
 	time.Sleep(250 * time.Millisecond)
-
-	log.Println("3")
 
 	vc.Speaking(false)
 
