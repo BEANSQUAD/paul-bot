@@ -1,4 +1,4 @@
-package media
+package main
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 	"github.com/jonas747/dca"
 	"github.com/rylio/ytdl"
 	"google.golang.org/api/googleapi/transport"
+	"google.golang.org/api/youtube/v3"
 )
 
 const developerKey = "AIzaSyDxE51o2JqlECAQYCMJ9ytjYzgLH_uON-Y" //this is temp and a bit of a bodge to get the youtube API working for now
@@ -52,8 +53,8 @@ func ytSearch(query string, maxResults int64) map[string]string {
 	return videos
 }
 
-// playSound plays the current buffer to the provided channel.
-func playSound(s *discordgo.Session, guildID, channelID string, search string) {
+// PlaySound plays the current buffer to the provided channel.
+func PlaySound(s *discordgo.Session, guildID, channelID string, search string) {
 	videos := ytSearch(search, 1)
 	var vids []string
 

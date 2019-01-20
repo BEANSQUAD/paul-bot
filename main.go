@@ -71,7 +71,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	tokens := strings.Split(m.Content, " ")
 	if tokens[0] == "!add" {
 		args := tokens[1:]
-		s.ChannelMessageSend(m.ChannelID, strconv.Itoa(sum(args)))
+		s.ChannelMessageSend(m.ChannelID, strconv.Itoa(Add(args)))
 	}
 
 	if strings.HasPrefix(m.Content, "!stop") {
@@ -97,7 +97,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// Look for the message sender in that guild's current voice states.
 		for _, vs := range g.VoiceStates {
 			if vs.UserID == m.Author.ID {
-				go playSound(s, g.ID, vs.ChannelID, strings.TrimLeft(m.Content, "!play "))
+				go PlaySound(s, g.ID, vs.ChannelID, strings.TrimLeft(m.Content, "!play "))
 				if err != nil {
 					fmt.Println("Error playing sound:", err)
 				}

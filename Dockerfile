@@ -9,7 +9,7 @@ github.com/rylio/ytdl \
 google.golang.org/api/youtube/v3 \
 google.golang.org/api/googleapi/transport
 COPY . /app
-RUN go build -v -o paul-bot main.go
+RUN go build -v -o paul-bot *.go
 
 FROM alpine
 RUN apk add --no-cache ca-certificates youtube-dl ffmpeg
