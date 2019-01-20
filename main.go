@@ -1,22 +1,18 @@
 package main
 
 import (
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
-	"log"
-	"net/http"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/rylio/ytdl"
 	"github.com/jonas747/dca"
-
-	"google.golang.org/api/youtube/v3"
-	"google.golang.org/api/googleapi/transport"
+	"github.com/rylio/ytdl"
 )
 
 func main() {
@@ -81,7 +77,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, strconv.Itoa(sum(args)))
 	}
 
-	if strings.HasPrefix(m.Content, "!stop"){
+	if strings.HasPrefix(m.Content, "!stop") {
 
 	}
 
@@ -144,13 +140,13 @@ func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
 }
 
 // playSound plays the current buffer to the provided channel.
-func playSound(s *discordgo.Session, guildID, channelID string, search string){
+func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 
 	videos := ytSearch(search, 1)
 	var vids []string
 
 	for id := range videos {
-		vids = append(vids, id);
+		vids = append(vids, id)
 	}
 
 	// Join the provided voice channel.
@@ -163,7 +159,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string){
 
 	// Start speaking.
 	vc.Speaking(true)
-	
+
 	// Change these accordingly
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
@@ -175,27 +171,27 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string){
 	options.BufferedFrames = 100
 
 	videoInfo, err := ytdl.GetVideoInfo(vids[0])
-	if err != nil{
+	if err != nil {
 	}
 
 	format := videoInfo.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
 	downloadURL, err := videoInfo.GetDownloadURL(format)
-	if err != nil{
+	if err != nil {
 	}
 
 	fmt.Println("1")
 
 	encodingSession, err := dca.EncodeFile(downloadURL.String(), options)
-	if err != nil{
+	if err != nil {
 	}
 	defer encodingSession.Cleanup()
 
 	fmt.Println("2")
 
-	done := make(chan error)    
+	done := make(chan error)
 	vidSesh = dca.NewStream(encodingSession, vc, done)
-	err = <- done
-	if err != nil{
+	err = <-done
+	if err != nil {
 	}
 
 	fmt.Println("3")
@@ -209,4 +205,3 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string){
 	// Disconnect from the provided voice channel.
 	vc.Disconnect()
 }
-
