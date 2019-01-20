@@ -39,9 +39,6 @@ func main() {
 	// Register ready as a callback for the ready events.
 	dg.AddHandler(ready)
 
-	// Register messageCreate as a callback for the messageCreate events.
-	dg.AddHandler(messageCreate)
-
 	// Register guildCreate as a callback for the guildCreate events.
 	dg.AddHandler(guildCreate)
 
@@ -67,16 +64,6 @@ func ready(s *discordgo.Session, event *discordgo.Ready) {
 
 	// Set the playing status.
 	s.UpdateStatus(0, "Botting It Up")
-}
-
-// This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the autenticated bot has access to.
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
 }
 
 // This function will be called (due to AddHandler above) every time a new
