@@ -15,16 +15,23 @@ import (
 )
 
 func handleErr(err error, output string){
-	log.Panicf(output + ", Error: %v", err)
+	log.Printf(output + ", Error: %v", err)
 }
 
 func Play(ctx *exrouter.Context) {
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
+	
+	videos := ytSearch(ctx.Args.After(1), 1)
+	var vids []string
+
+	for id := range videos {
+		vids = append(vids, id)
+	}
 
 	for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
-			go playSound(ctx.Ses, g.ID, vs.ChannelID, ctx.Args.After(1))
+			go playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
 			return
 		}
 	}
@@ -64,13 +71,7 @@ func ytSearch(query string, maxResults int64) map[string]string {
 	return videos
 }
 
-func playSound(s *discordgo.Session, guildID, channelID string, search string) {
-	videos := ytSearch(search, 1)
-	var vids []string
-
-	for id := range videos {
-		vids = append(vids, id)
-	}
+func playSound(s *discordgo.Session, guildID, channelID string, videoID string) {
 
 	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
 	handleErr(err, "Error Joining Specified Voice Channel")
@@ -87,7 +88,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	options.PacketLoss = 1
 	options.BufferedFrames = 100
 
-	videoInfo, err := ytdl.GetVideoInfo(vids[0])
+	videoInfo, err := ytdl.GetVideoInfo(videoID)
 	handleErr(err, "Error Getting Specified Youtube Video Info")
 
 	format := videoInfo.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
