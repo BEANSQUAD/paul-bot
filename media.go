@@ -14,6 +14,8 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
+var player Player
+
 type Player struct {
 	eSession *dca.EncodeSession
 	sSession *dca.StreamingSession
@@ -23,22 +25,29 @@ func handleErr(err error, output string){
 	log.Printf(output + ", Error: %v", err)
 }
 
-func Media(ctx *exrouter.Context) {
+func Info(ctx *exrouter.Context){
+	log.Printf("%v", player.eSession.Running())
+}
+
+func Stop(ctx *exrouter.Context){
+	if player.eSession.Running(){
+		err := player.eSession.Stop()
+		handleErr(err, "Error stopping encoding stream")
+	}
+}
+
+func Play(ctx *exrouter.Context) {
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
-	
+
 	videos := ytSearch(ctx.Args.After(1), 1)
 	var vids []string
-
-	for id := range videos {
+		for id := range videos {
 		vids = append(vids, id)
 	}
-
-	var player Player
-
-	for _, vs := range g.VoiceStates {
+		for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
-			go playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0], player)
+			playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
 			return
 		}
 	}
@@ -78,7 +87,7 @@ func ytSearch(query string, maxResults int64) map[string]string {
 	return videos
 }
 
-func playSound(s *discordgo.Session, guildID, channelID string, videoID string, player Player) {
+func playSound(s *discordgo.Session, guildID, channelID string, videoID string) {
 	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
 	handleErr(err, "Error Joining Specified Voice Channel")
 

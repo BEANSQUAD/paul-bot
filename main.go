@@ -1,11 +1,11 @@
 package main
 
 import (
-	"io/ioutil"
+	//"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
-	"strings"
+	//"strings"
 	"syscall"
 
 	"github.com/Necroforger/dgrouter/exrouter"
@@ -13,11 +13,12 @@ import (
 )
 
 func main() {
-	dat, err := ioutil.ReadFile("/etc/paul-bot.key")
+	/*dat, err := ioutil.ReadFile("/etc/paul-bot.key")
 	if err != nil {
 		log.Panicf("couldn't read /etc/paul-bot.key: %v", err)
 	}
-	Token := strings.TrimSuffix(string(dat), "\n")
+	Token := strings.TrimSuffix(string(dat), "\n")*/
+	Token := "NTM1NzY2MzQ3NTIzNjg2NDIw.DyZiFw.k0aYTAUOgY8WyN52aZIYaWLV9Rw"
 
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
@@ -29,7 +30,9 @@ func main() {
 
 	router.On("add", Add).Desc("adds numbers together")
 
-	router.On("play", Media).Desc("plays youtube videos' audio")
+	router.On("play", Play).Desc("plays youtube videos' audio")
+	router.On("info", Info).Desc("gets info on current session")
+	router.On("stop", Stop).Desc("gets info on current session")
 
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
 		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
