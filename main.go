@@ -209,7 +209,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
 	options.Bitrate = 64
-	options.Application = "lowdelay"
+	options.Application = "audio"
 	options.Volume = 256
 	options.CompressionLevel = 10
 	options.PacketLoss = 1
