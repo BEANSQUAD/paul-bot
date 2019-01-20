@@ -18,18 +18,15 @@ import (
 
 func Play(ctx *exrouter.Context){
 
-	m := ctx.Msg
-	s := ctx.Ses
-
 	// Find the channel that the message came from.
-	c, err := s.State.Channel(m.ChannelID)
+	c, err := ctx.Ses.State.Channel(ctx.Msg.ChannelID)
 	if err != nil {
 		// Could not find channel.
 		return
 	}
 
 	// Find the guild for that channel.
-	g, err := s.State.Guild(c.GuildID)
+	g, err := ctx.Ses.State.Guild(c.GuildID)
 	if err != nil {
 		// Could not find guild.
 		return
@@ -37,8 +34,8 @@ func Play(ctx *exrouter.Context){
 
 	// Look for the message sender in that guild's current voice states.
 	for _, vs := range g.VoiceStates {
-		if vs.UserID == m.Author.ID {
-			go playSound(s, g.ID, vs.ChannelID, strings.TrimLeft(m.Content, "!play "))
+		if vs.UserID == ctx.Msg.Author.ID {
+			go playSound(ctx.Ses, g.ID, vs.ChannelID, strings.TrimLeft(ctx.Msg.Content, "!play "))
 			if err != nil {
 				fmt.Println("Error playing sound:", err)
 			}
