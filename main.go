@@ -1,11 +1,9 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/Necroforger/dgrouter/exrouter"
@@ -13,13 +11,12 @@ import (
 )
 
 func main() {
-	dat, err := ioutil.ReadFile("/etc/paul-bot.key")
-	if err != nil {
-		log.Panicf("couldn't read /etc/paul-bot.key: %v", err)
+	config := SetupConfig()
+	if !config.IsSet("DiscordKey") {
+		log.Panicf("couldn't read DiscordKey from config file: %v", config.ConfigFileUsed())
 	}
-	Token := strings.TrimSuffix(string(dat), "\n")
 
-	dg, err := discordgo.New("Bot " + Token)
+	dg, err := discordgo.New("Bot " + config.GetString("DiscordKey"))
 	if err != nil {
 		log.Printf("Error creating Discord session: %v", err)
 		return
