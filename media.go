@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/Necroforger/dgrouter/exrouter"
@@ -29,7 +28,7 @@ func Play(ctx *exrouter.Context) {
 
 	for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
-			go playSound(ctx.Ses, g.ID, vs.ChannelID, strings.TrimLeft(ctx.Msg.Content, "!play "))
+			go playSound(ctx.Ses, g.ID, vs.ChannelID, ctx.Args.After(1))
 			if err != nil {
 				fmt.Println("Error playing sound:", err)
 			}
