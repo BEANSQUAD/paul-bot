@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"syscall"
 
@@ -75,12 +74,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
-	}
-
-	tokens := strings.Split(m.Content, " ")
-	if tokens[0] == "!add" {
-		args := tokens[1:]
-		s.ChannelMessageSend(m.ChannelID, strconv.Itoa(Add(args)))
 	}
 
 	if strings.HasPrefix(m.Content, "!stop") {

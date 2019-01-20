@@ -3,9 +3,15 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
+
+	"github.com/Necroforger/dgrouter/exrouter"
 )
 
-func Add(nums []string) int {
+func Add(ctx *exrouter.Context) {
+	tokens := strings.Split(ctx.Msg.Content, " ")
+	nums := tokens[1:]
+
 	total := 0
 	for _, num := range nums {
 		n, err := strconv.Atoi(num)
@@ -14,5 +20,6 @@ func Add(nums []string) int {
 		}
 		total += n
 	}
-	return total
+
+	ctx.Reply(strconv.Itoa(total))
 }
