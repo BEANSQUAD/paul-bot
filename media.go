@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -27,7 +28,11 @@ func Media(ctx *exrouter.Context) {
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 
-	videos := ytSearch(ctx.Args.After(1), 1)
+	videos, err := ytSearch(ctx.Args.After(1), 1)
+	if err != nil {
+		ctx.Reply(fmt.Errorf("error in ytSearch: %v", err))
+	}
+
 	var vids []string
 
 	for id := range videos {
@@ -44,10 +49,11 @@ func Media(ctx *exrouter.Context) {
 	}
 }
 
-func ytSearch(query string, maxResults int64) map[string]string {
+func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
 	if !config.IsSet("GoogleAPIKey") {
-		log.Printf("GoogleAPIKey is not set in config: %v", config.ConfigFileUsed())
-		return
+		err := fmt.Errorf("GoogleAPIKey is not set in config: %v", config.ConfigFileUsed())
+		log.Print(err)
+		return nil, err
 	}
 	client := &http.Client{
 		Transport: &transport.APIKey{Key: config.GetString("GoogleAPIKey")},
@@ -63,7 +69,7 @@ func ytSearch(query string, maxResults int64) map[string]string {
 	response, err := call.Do()
 	handleErr(err, "Error Listing Youtube Videos With Query")
 
-	videos := make(map[string]string)
+	videos = make(map[string]string)
 	channels := make(map[string]string)
 	playlists := make(map[string]string)
 
@@ -77,7 +83,7 @@ func ytSearch(query string, maxResults int64) map[string]string {
 			playlists[item.Id.PlaylistId] = item.Snippet.Title
 		}
 	}
-	return videos
+	return videos, nil
 }
 
 func playSound(s *discordgo.Session, guildID, channelID string, videoID string, player Player) {
