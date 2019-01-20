@@ -4,42 +4,35 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 	"strings"
+	"time"
 
+	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
 	"github.com/rylio/ytdl"
-	"github.com/Necroforger/dgrouter/exrouter"
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/youtube/v3"
 )
 
-func Play(ctx *exrouter.Context){
-
-	// Find the channel that the message came from.
+func Play(ctx *exrouter.Context) {
 	c, err := ctx.Ses.State.Channel(ctx.Msg.ChannelID)
 	if err != nil {
-		// Could not find channel.
 		return
 	}
 
-	// Find the guild for that channel.
 	g, err := ctx.Ses.State.Guild(c.GuildID)
 	if err != nil {
-		// Could not find guild.
 		return
 	}
 
-	// Look for the message sender in that guild's current voice states.
 	for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
 			go playSound(ctx.Ses, g.ID, vs.ChannelID, strings.TrimLeft(ctx.Msg.Content, "!play "))
 			if err != nil {
 				fmt.Println("Error playing sound:", err)
 			}
-
 			return
 		}
 	}
@@ -65,12 +58,10 @@ func ytSearch(query string, maxResults int64) map[string]string {
 	if err != nil {
 	}
 
-	// Group video, channel, and playlist results in separate lists.
 	videos := make(map[string]string)
 	channels := make(map[string]string)
 	playlists := make(map[string]string)
 
-	// Iterate through each item and add it to the correct list.
 	for _, item := range response.Items {
 		switch item.Id.Kind {
 		case "youtube#video":
@@ -81,11 +72,9 @@ func ytSearch(query string, maxResults int64) map[string]string {
 			playlists[item.Id.PlaylistId] = item.Snippet.Title
 		}
 	}
-
 	return videos
 }
 
-// PlaySound plays the current buffer to the provided channel.
 func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	videos := ytSearch(search, 1)
 	var vids []string
@@ -94,23 +83,13 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 		vids = append(vids, id)
 	}
 
-	// Join the provided voice channel.
 	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
 	if err != nil {
 	}
 
-	// Sleep for a specified amount of time before playing the sound
 	vc.Speaking(true)
-	// Sleep for a specified amount of time before playing the sound
-	// Sleep for a specified amount of time before playing the sound
-	// Sleep for a specified amount of time before playing the sound
-	// Sleep for a specified amount of time before playing the sound
-	// Sleep for a specified amount of time before playing the sound
-	// Sleep for a specified amount of time before playing the sound
-	// Sleep for a specified amount of time before playing the sound
 	time.Sleep(250 * time.Millisecond)
 
-	// Change these accordingly
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
 	options.Bitrate = 64
@@ -147,10 +126,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 
 	fmt.Println("3")
 
-	// Stop speaking
 	vc.Speaking(false)
 
-	// Sleep for a specificed amount of time before ending.
-	// Disconnect from the provided voice channel.
 	vc.Disconnect()
 }
