@@ -14,11 +14,16 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
+type Player struct {
+	eSession *dca.EncodeSession
+	sSession *dca.StreamingSession
+}
+
 func handleErr(err error, output string){
 	log.Printf(output + ", Error: %v", err)
 }
 
-func Play(ctx *exrouter.Context) {
+func Media(ctx *exrouter.Context) {
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 	
@@ -29,9 +34,11 @@ func Play(ctx *exrouter.Context) {
 		vids = append(vids, id)
 	}
 
+	var player Player
+
 	for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
-			go playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
+			go playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0], player)
 			return
 		}
 	}
@@ -71,8 +78,7 @@ func ytSearch(query string, maxResults int64) map[string]string {
 	return videos
 }
 
-func playSound(s *discordgo.Session, guildID, channelID string, videoID string) {
-
+func playSound(s *discordgo.Session, guildID, channelID string, videoID string, player Player) {
 	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
 	handleErr(err, "Error Joining Specified Voice Channel")
 
@@ -95,12 +101,12 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	downloadURL, err := videoInfo.GetDownloadURL(format)
 	handleErr(err, "Error Downloading Youtube Video")
 
-	encodingSession, err := dca.EncodeFile(downloadURL.String(), options)
+	player.eSession, err = dca.EncodeFile(downloadURL.String(), options)
 	handleErr(err, "Error Encoding Audio File")
-	defer encodingSession.Cleanup()
+	defer player.eSession.Cleanup()
 
 	done := make(chan error)
-	dca.NewStream(encodingSession, vc, done)
+	player.sSession = dca.NewStream(player.eSession, vc, done)
 	err = <-done
 	handleErr(err, "Error Streaming Audio File")
 	time.Sleep(250 * time.Millisecond)

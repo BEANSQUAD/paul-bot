@@ -29,7 +29,7 @@ func main() {
 
 	router.On("add", Add).Desc("adds numbers together")
 
-	router.On("play", Play).Desc("plays youtube videos' audio")
+	router.On("play", Media).Desc("plays youtube videos' audio")
 
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
 		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
