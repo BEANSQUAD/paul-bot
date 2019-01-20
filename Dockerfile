@@ -5,6 +5,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 RUN go build -v github.com/bwmarrin/discordgo \
 github.com/Necroforger/dgrouter \
+github.com/Necroforger/dgrouter/exrouter \
 github.com/jonas747/dca \
 github.com/rylio/ytdl \
 google.golang.org/api/youtube/v3 \
