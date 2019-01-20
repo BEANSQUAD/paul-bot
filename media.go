@@ -100,10 +100,15 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	}
 
 	// Sleep for a specified amount of time before playing the sound
-	time.Sleep(250 * time.Millisecond)
-
-	// Start speaking.
 	vc.Speaking(true)
+	// Sleep for a specified amount of time before playing the sound
+	// Sleep for a specified amount of time before playing the sound
+	// Sleep for a specified amount of time before playing the sound
+	// Sleep for a specified amount of time before playing the sound
+	// Sleep for a specified amount of time before playing the sound
+	// Sleep for a specified amount of time before playing the sound
+	// Sleep for a specified amount of time before playing the sound
+	time.Sleep(250 * time.Millisecond)
 
 	// Change these accordingly
 	options := dca.StdEncodeOptions
@@ -138,6 +143,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	err = <-done
 	if err != nil {
 	}
+	time.Sleep(250 * time.Millisecond)
 
 	fmt.Println("3")
 
@@ -145,8 +151,6 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	vc.Speaking(false)
 
 	// Sleep for a specificed amount of time before ending.
-	time.Sleep(250 * time.Millisecond)
-
 	// Disconnect from the provided voice channel.
 	vc.Disconnect()
 }
