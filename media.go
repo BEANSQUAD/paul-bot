@@ -19,14 +19,14 @@ type Player struct {
 	sSession *dca.StreamingSession
 }
 
-func handleErr(err error, output string){
-	log.Printf(output + ", Error: %v", err)
+func handleErr(err error, output string) {
+	log.Printf(output+", Error: %v", err)
 }
 
 func Media(ctx *exrouter.Context) {
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
-	
+
 	videos := ytSearch(ctx.Args.After(1), 1)
 	var vids []string
 
@@ -44,11 +44,13 @@ func Media(ctx *exrouter.Context) {
 	}
 }
 
-const developerKey = "AIzaSyDxE51o2JqlECAQYCMJ9ytjYzgLH_uON-Y" //this is temp and a bit of a bodge to get the youtube API working for now
-
 func ytSearch(query string, maxResults int64) map[string]string {
+	if !config.IsSet("GoogleAPIKey") {
+		log.Printf("GoogleAPIKey is not set in config: %v", config.ConfigFileUsed())
+		return
+	}
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: developerKey},
+		Transport: &transport.APIKey{Key: config.GetString("GoogleAPIKey")},
 	}
 
 	service, err := youtube.New(client)
