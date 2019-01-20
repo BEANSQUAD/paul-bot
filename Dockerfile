@@ -16,5 +16,6 @@ RUN go build -v -o paul-bot .
 
 FROM alpine
 RUN apk add --no-cache ca-certificates youtube-dl ffmpeg
-COPY --from=builder /app/paul-bot /paul-bot
-CMD ["/paul-bot"]
+WORKDIR /app
+COPY --from=builder /app/paul-bot /app/paul-bot
+CMD ["/app/paul-bot"]
