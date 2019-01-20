@@ -15,6 +15,46 @@ import (
 	"github.com/rylio/ytdl"
 )
 
+const developerKey = "AIzaSyDxE51o2JqlECAQYCMJ9ytjYzgLH_uON-Y" //this is temp and a bit of a bodge to get the youtube API working for now
+
+func ytSearch(query string, maxResults int64) map[string]string{
+
+	client := &http.Client{
+		Transport: &transport.APIKey{Key: developerKey},
+	}
+
+	service, err := youtube.New(client)
+	if err != nil {
+		log.Fatalf("Error creating new YouTube client: %v", err)
+	}
+
+	// Make the API call to YouTube.
+	call := service.Search.List("id,snippet").
+		Q(query).
+		MaxResults(maxResults)
+	response, err := call.Do()
+	if err != nil{}
+
+	// Group video, channel, and playlist results in separate lists.
+	videos := make(map[string]string)
+	channels := make(map[string]string)
+	playlists := make(map[string]string)
+
+	// Iterate through each item and add it to the correct list.
+	for _, item := range response.Items {
+		switch item.Id.Kind {
+		case "youtube#video":
+			videos[item.Id.VideoId] = item.Snippet.Title
+		case "youtube#channel":
+			channels[item.Id.ChannelId] = item.Snippet.Title
+		case "youtube#playlist":
+			playlists[item.Id.PlaylistId] = item.Snippet.Title
+		}
+	}
+
+	return videos
+}
+
 func main() {
 	dat, err := ioutil.ReadFile("/etc/paul-bot.key")
 	if err != nil {
@@ -189,7 +229,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, search string) {
 	fmt.Println("2")
 
 	done := make(chan error)
-	vidSesh = dca.NewStream(encodingSession, vc, done)
+	dca.NewStream(encodingSession, vc, done)
 	err = <-done
 	if err != nil {
 	}
