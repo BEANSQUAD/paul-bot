@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
@@ -13,11 +15,13 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
 	"github.com/rylio/ytdl"
+	"google.golang.org/api/googleapi/transport"
+	"google.golang.org/api/youtube/v3"
 )
 
 const developerKey = "AIzaSyDxE51o2JqlECAQYCMJ9ytjYzgLH_uON-Y" //this is temp and a bit of a bodge to get the youtube API working for now
 
-func ytSearch(query string, maxResults int64) map[string]string{
+func ytSearch(query string, maxResults int64) map[string]string {
 
 	client := &http.Client{
 		Transport: &transport.APIKey{Key: developerKey},
@@ -33,7 +37,8 @@ func ytSearch(query string, maxResults int64) map[string]string{
 		Q(query).
 		MaxResults(maxResults)
 	response, err := call.Do()
-	if err != nil{}
+	if err != nil {
+	}
 
 	// Group video, channel, and playlist results in separate lists.
 	videos := make(map[string]string)
