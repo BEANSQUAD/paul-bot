@@ -64,7 +64,6 @@ func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
 	for _, channel := range event.Guild.Channels {
 		if channel.ID == event.Guild.ID {
 			_, _ = s.ChannelMessageSend(channel.ID, "bot")
-			return
 		}
 	}
 }
