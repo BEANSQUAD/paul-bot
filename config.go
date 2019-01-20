@@ -11,7 +11,6 @@ func SetupConfig() *viper.Viper {
 	config.SetConfigType("toml")
 	config.SetConfigName("config")
 	config.AddConfigPath("/etc/paul-bot")
-	config.SetDefault("DiscordKey", "")
 
 	err := config.ReadInConfig()
 	if err != nil {
