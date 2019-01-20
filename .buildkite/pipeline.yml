@@ -13,4 +13,4 @@ steps:
                   - "/var/run/docker.sock:/var/run/docker.sock"
       commands:
           - "docker rm -f paul-bot"
-          - "docker run -v /etc/paul-bot/ -d --restart unless-stopped --name paul-bot paul-bot:latest"
+          - "docker run -v /etc/paul-bot/:/etc/paul-bot/ -d --restart unless-stopped --name paul-bot paul-bot:latest"
