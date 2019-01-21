@@ -12,7 +12,7 @@ import (
 
 func main() {
 	SetupConfig()
-	if !config.GetString("DiscordKey") {
+	if config.GetString("DiscordKey") == "" {
 		log.Panicf("couldn't read DiscordKey from config file: %v", config.ConfigFileUsed())
 	}
 

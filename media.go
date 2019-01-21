@@ -114,7 +114,7 @@ func Disconnect(ctx *exrouter.Context) {
 }
 
 func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
-	if !config.GetString("GoogleAPIKey") {
+	if config.GetString("GoogleAPIKey") == "" {
 		err := fmt.Errorf("GoogleAPIKey is not set in config: %v", config.ConfigFileUsed())
 		log.Print(err)
 		return nil, err
