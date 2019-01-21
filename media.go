@@ -62,7 +62,6 @@ func Play(ctx *exrouter.Context) {
 		if vs.UserID == ctx.Msg.Author.ID {
 			ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
 			playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
-			return
 		}
 	}
 }
@@ -73,9 +72,13 @@ func dc(){
 }
 
 func Disconnect(ctx *exrouter.Context) {
-	player.vConn.Speaking(false)
-	player.vConn.Disconnect()
-	ctx.Reply("Disconnected")
+	if player.vConn != nil {
+		player.vConn.Speaking(false)
+		player.vConn.Disconnect()
+		ctx.Reply("Disconnected")
+	} else {
+		ctx.Reply("No VoiceConnections to disconnect")
+	}
 }
 
 func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
