@@ -133,11 +133,11 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 }
 
 func playSound(s *discordgo.Session, guildID, channelID string, videoID string) {
-	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
+	var err error
+	player.vConn, err = s.ChannelVoiceJoin(guildID, channelID, false, true)
 	handleErr(err, "Error Joining Specified Voice Channel")
-	player.vConn = vc
 
-	vc.Speaking(true)
+	player.vConn.Speaking(true)
 	time.Sleep(250 * time.Millisecond)
 
 	options := dca.StdEncodeOptions
@@ -161,12 +161,12 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	defer player.eSession.Cleanup()
 
 	done := make(chan error)
-	player.sSession = dca.NewStream(player.eSession, vc, done)
+	player.sSession = dca.NewStream(player.eSession, player.vConn, done)
 	err = <-done
 	handleErr(err, "Error Streaming Audio File")
 	time.Sleep(250 * time.Millisecond)
 
-	vc.Speaking(false)
+	player.vConn.Speaking(false)
 
-	vc.Disconnect()
+	player.vConn.Disconnect()
 }
