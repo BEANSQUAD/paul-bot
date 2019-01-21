@@ -28,15 +28,20 @@ func handleErr(err error, output string) {
 
 func Stop(ctx *exrouter.Context){
 	if player.eSession.Running(){
+		ctx.Reply("Stopping")
+		player.sSession.SetPaused(true)
 		err := player.eSession.Stop()
 		handleErr(err, "Error stopping encoding stream")
+		ctx.Reply("Stopping")
 	}
 }
 
 func Pause(ctx *exrouter.Context){
 	if player.sSession.Paused(){
+		ctx.Reply("Resuming")
 		player.sSession.SetPaused(false)
 	}else{
+		ctx.Reply("Pausing")
 		player.sSession.SetPaused(true)
 	}
 }
@@ -56,6 +61,7 @@ func Play(ctx *exrouter.Context) {
 	}
 		for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
+			ctx.Reply("https://www.youtube.com/watch?v=" + "%v", vids[0])
 			playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
 			return
 		}
@@ -113,7 +119,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	options.Volume = 256
 	options.CompressionLevel = 10
 	options.PacketLoss = 1
-	options.BufferedFrames = 10
+	options.BufferedFrames = 100
 
 	videoInfo, err := ytdl.GetVideoInfo(videoID)
 	handleErr(err, "Error Getting Specified Youtube Video Info")
