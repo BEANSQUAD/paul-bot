@@ -34,7 +34,7 @@ func Stop(ctx *exrouter.Context) {
 			player.sSession.SetPaused(true)
 			Disconnect(ctx)
 		}
-	}else{
+	} else {
 		ctx.Reply("No Sound to Stop")
 	}
 }
@@ -48,7 +48,7 @@ func Pause(ctx *exrouter.Context) {
 			ctx.Reply("Pausing")
 			player.sSession.SetPaused(true)
 		}
-	}else{
+	} else {
 		ctx.Reply("No Sound to Pause")
 	}
 }
@@ -76,7 +76,7 @@ func Play(ctx *exrouter.Context) {
 }
 
 func Disconnect(ctx *exrouter.Context) {
-	if player.vConn != nil {
+	if player.vConn == nil {
 		log.Print("Tried to Disconnect when no VoiceConnections existed")
 		ctx.Reply("No VoiceConnections to disconnect")
 		return
