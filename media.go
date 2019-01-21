@@ -99,6 +99,7 @@ func Play(ctx *exrouter.Context) {
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
 		playSound(*player.vQueue[0].videoInfo)
 	}
+
 	player.Unlock()
 }
 
@@ -196,6 +197,8 @@ func playSound(videoInfo ytdl.VideoInfo) {
 	handleErr(err, "Error Encoding Audio File")
 
 	player.vConn.Speaking(true)
+	
+	player.Unlock()
 
 	done := make(chan error)
 	player.sSession = dca.NewStream(player.eSession, player.vConn, done)
