@@ -63,7 +63,7 @@ func Pause(ctx *exrouter.Context) {
 	}
 }
 
-func (Player) playQue(ctx *exrouter.Context, vid string/*temp*/){
+func (Player) playQueue(ctx *exrouter.Context, vid string/*temp*/){
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 	var vSes  string
