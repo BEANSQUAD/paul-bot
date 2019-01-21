@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
@@ -38,6 +39,7 @@ func handleErr(err error, output string) {
 
 func Stop(ctx *exrouter.Context) {
 	if player.sSession != nil {
+		player.vQueue = player.vQueue[:0]
 		if player.eSession.Running() {
 			ctx.Reply("Stopping")
 			err := player.eSession.Stop()
@@ -63,7 +65,7 @@ func Pause(ctx *exrouter.Context) {
 	}
 }
 
-func Play(ctx *exrouter.Context) {
+func addVidToQueue(ctx *exrouter.Context){
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 	var vSes string
@@ -97,11 +99,16 @@ func Play(ctx *exrouter.Context) {
 	}
 }
 
+func Play(ctx *exrouter.Context) {
+	go addVidToQueue(ctx)
+}
+
 func Skip(ctx *exrouter.Context) {
 	if len(player.vQueue) > 1 {
 		player.vQueue = player.vQueue[1:]
 		err := player.eSession.Stop()
 		handleErr(err, "Error Stopping Encoding Session")
+		time.Sleep(500 * time.Millisecond)
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[0].videoInfo.ID))
 		playSound(*player.vQueue[0].videoInfo)
 	}
@@ -186,7 +193,6 @@ func playSound(videoInfo ytdl.VideoInfo) {
 
 	player.eSession, err = dca.EncodeFile(downloadURL.String(), options)
 	handleErr(err, "Error Encoding Audio File")
-	defer player.eSession.Cleanup()
 
 	player.vConn.Speaking(true)
 
@@ -195,12 +201,14 @@ func playSound(videoInfo ytdl.VideoInfo) {
 	err = <-done
 	handleErr(err, "Error Streaming Audio File")
 
+	player.vConn.Speaking(false)
+	player.eSession.Cleanup()
+
 	if len(player.vQueue) > 1{
 		player.vQueue = player.vQueue[1:]
 		playSound(*player.vQueue[0].videoInfo)
-	}else{
-		player.vConn.Speaking(false)
-
+	}else if len(player.vQueue) == 0 {
+		log.Printf("Disconnecting")
 		player.vConn.Disconnect()
 	}
 }
