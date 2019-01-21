@@ -11,6 +11,11 @@ import (
 )
 
 func Exit(ctx *exrouter.Context){
+	err := player.vConn.Speaking(false)
+	if err != nil {
+		log.Printf("error setting vConn.Speaking(): %v", err)
+	}
+	err = player.vConn.Disconnect()
 	os.Exit(1)
 }
 
