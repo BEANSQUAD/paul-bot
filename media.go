@@ -142,9 +142,6 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	player.vConn, err = s.ChannelVoiceJoin(guildID, channelID, false, true)
 	handleErr(err, "Error Joining Specified Voice Channel")
 
-	player.vConn.Speaking(true)
-	time.Sleep(250 * time.Millisecond)
-
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
 	options.Bitrate = 64
@@ -165,11 +162,12 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	handleErr(err, "Error Encoding Audio File")
 	defer player.eSession.Cleanup()
 
+	player.vConn.Speaking(true)
+	
 	done := make(chan error)
 	player.sSession = dca.NewStream(player.eSession, player.vConn, done)
 	err = <-done
 	handleErr(err, "Error Streaming Audio File")
-	time.Sleep(250 * time.Millisecond)
 
 	player.vConn.Speaking(false)
 
