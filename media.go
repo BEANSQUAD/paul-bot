@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
+	"sync"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
@@ -18,12 +18,11 @@ import (
 var player Player
 
 type Player struct {
+	sync.Mutex
 	eSession *dca.EncodeSession
 	sSession *dca.StreamingSession
 	vConn    *discordgo.VoiceConnection
 	vQueue   []videoQuery
-	playing bool
-	ingesting bool
 }
 
 type videoQuery struct{
@@ -68,10 +67,7 @@ func Pause(ctx *exrouter.Context) {
 }
 
 func Play(ctx *exrouter.Context) {
-	for !player.ingesting {
-		time.Sleep(10 * time.Millisecond)
-	}
-	player.ingesting = true
+	player.Lock()
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 	var vSes string
@@ -103,20 +99,19 @@ func Play(ctx *exrouter.Context) {
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
 		playSound(*player.vQueue[0].videoInfo)
 	}
-	player.ingesting = false
+	player.Unlock()
 }
 
 func Skip(ctx *exrouter.Context) {
+	player.Lock()
 	if len(player.vQueue) > 1 {
 		player.vQueue = player.vQueue[1:]
 		err := player.eSession.Stop()
 		handleErr(err, "Error Stopping Encoding Session")
-		for !player.playing{
-			time.Sleep(10 * time.Millisecond)
-		}
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[0].videoInfo.ID))
 		playSound(*player.vQueue[0].videoInfo)
 	}
+	player.Unlock()
 }
 
 func Queue(ctx *exrouter.Context) {
@@ -184,8 +179,6 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 }
 
 func playSound(videoInfo ytdl.VideoInfo) {
-	player.playing = true
-
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
 	options.Bitrate = 64
@@ -219,5 +212,4 @@ func playSound(videoInfo ytdl.VideoInfo) {
 		log.Printf("Disconnecting")
 		player.vConn.Disconnect()
 	}
-	player.playing = false
 }

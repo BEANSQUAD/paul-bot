@@ -31,9 +31,6 @@ func main() {
 		return
 	}
 
-	player.playing = false
-	player.ingesting = false
-
 	router := exrouter.New()
 
 	router.On("add", Add).Desc("adds numbers together")
