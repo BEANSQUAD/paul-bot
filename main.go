@@ -75,7 +75,7 @@ func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
 
 	for _, channel := range event.Guild.Channels {
 		if channel.ID == event.Guild.ID {
-			_, err := s.ChannelMessageSend(channel.ID, "bot")
+			_, err := s.ChannelMessageSend(channel.ID, "(╯°□°）╯︵ ┻━┻)")
 			if err != nil {
 				log.Printf("couldn't send guild startup message %v", err)
 			}
