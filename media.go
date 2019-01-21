@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
@@ -21,28 +20,29 @@ type Player struct {
 	eSession *dca.EncodeSession
 	sSession *dca.StreamingSession
 	vConn    *discordgo.VoiceConnection
-	vQueue   []video
+	vQueue   []videoQuery
 }
 
-type video struct {
-	id        string
-	length    time.Duration
-	title     string
-	desc      string
+type videoQuery struct{
+	videoInfo *ytdl.VideoInfo
 	query     string
 	requester *discordgo.User
 }
 
 func handleErr(err error, output string) {
-	log.Printf(output+", Error: %v", err)
+	if err != nil {
+		log.Printf(output+", Error: %v", err)
+
+	}
 }
 
 func Stop(ctx *exrouter.Context) {
 	if player.sSession != nil {
 		if player.eSession.Running() {
 			ctx.Reply("Stopping")
-			player.sSession.SetPaused(true)
-			Disconnect(ctx)
+			err := player.eSession.Stop()
+			handleErr(err, "Error Stopping Encoding Session")
+		    Disconnect(ctx)
 		}
 	} else {
 		ctx.Reply("No Sound to Stop")
@@ -63,7 +63,7 @@ func Pause(ctx *exrouter.Context) {
 	}
 }
 
-func (Player) playQueue(ctx *exrouter.Context, vid string /*temp*/) {
+func Play(ctx *exrouter.Context) {
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 	var vSes string
@@ -73,24 +73,35 @@ func (Player) playQueue(ctx *exrouter.Context, vid string /*temp*/) {
 		}
 	}
 
-	playSound(ctx.Ses, g.ID, vSes, vid)
-}
+	player.vConn, err = ctx.Ses.ChannelVoiceJoin(g.ID, vSes, false, true)
+	handleErr(err, "Error Joining Specified Voice Channel")
 
-func Play(ctx *exrouter.Context) {
 	videos, err := ytSearch(ctx.Args.After(1), 1)
-	if err != nil {
-		ctx.Reply(fmt.Errorf("error in ytSearch: %v", err))
-	}
+	handleErr(err, "Error Searching Using Query")
 
 	var vids []string
 	for id := range videos {
 		vids = append(vids, id)
 	}
 
-	ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
-	player.vQueue = append(player.vQueue, video{vids[0], time.Second * 0, "", "", "", ctx.Msg.Author}) //This will be expanded upon and is nowhere near finished
+	videoStruct, err := ytdl.GetVideoInfo(vids[0])
+	handleErr(err, "Error Getting Video Info")
 
-	player.playQueue(ctx, vids[0]) //This is also temp and will be updated
+	player.vQueue = append(player.vQueue, videoQuery{videoStruct, ctx.Args.After(1), ctx.Msg.Author})
+	
+	if player.eSession == nil || !player.eSession.Running() {
+		ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
+		playSound(*player.vQueue[0].videoInfo)
+	}
+}
+
+func Skip(ctx *exrouter.Context){
+	if len(player.vQueue) > 1 {
+		player.vQueue = player.vQueue[1:]
+		err := player.eSession.Stop()
+		handleErr(err, "Error Stopping Encoding Session")
+		playSound(*player.vQueue[0].videoInfo)
+	}
 }
 
 func Disconnect(ctx *exrouter.Context) {
@@ -150,10 +161,7 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 	return videos, nil
 }
 
-func playSound(s *discordgo.Session, guildID, channelID string, videoID string) {
-	var err error
-	player.vConn, err = s.ChannelVoiceJoin(guildID, channelID, false, true)
-	handleErr(err, "Error Joining Specified Voice Channel")
+func playSound(videoInfo ytdl.VideoInfo) {
 
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
@@ -163,9 +171,6 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	options.CompressionLevel = 10
 	options.PacketLoss = 1
 	options.BufferedFrames = 1
-
-	videoInfo, err := ytdl.GetVideoInfo(videoID)
-	handleErr(err, "Error Getting Specified Youtube Video Info")
 
 	format := videoInfo.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
 	downloadURL, err := videoInfo.GetDownloadURL(format)
@@ -185,4 +190,9 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	player.vConn.Speaking(false)
 
 	player.vConn.Disconnect()
+
+	player.vQueue = player.vQueue[1:]
+	if len(player.vQueue) > 0{
+		playSound(*player.vQueue[0].videoInfo)
+	}
 }
