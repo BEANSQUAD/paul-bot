@@ -65,7 +65,7 @@ func Pause(ctx *exrouter.Context) {
 	}
 }
 
-func addVidToQueue(ctx *exrouter.Context){
+func playParallel(ctx *exrouter.Context){
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 	var vSes string
@@ -100,7 +100,7 @@ func addVidToQueue(ctx *exrouter.Context){
 }
 
 func Play(ctx *exrouter.Context) {
-	go addVidToQueue(ctx)
+	go playParallel(ctx)
 }
 
 func Skip(ctx *exrouter.Context) {
@@ -154,6 +154,7 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 	handleErr(err, "Error Creating New Youtube Client")
 
 	// Make the API call to YouTube.
+	log.Printf("Calling to Youtube")
 	call := service.Search.List("id,snippet").
 		Q(query).
 		MaxResults(maxResults)
