@@ -21,15 +21,15 @@ type Player struct {
 	eSession *dca.EncodeSession
 	sSession *dca.StreamingSession
 	vConn    *discordgo.VoiceConnection
-	vQueue []video
+	vQueue   []video
 }
 
 type video struct {
-	id string
-	length time.Duration
-	title string
-	desc string
-	query string
+	id        string
+	length    time.Duration
+	title     string
+	desc      string
+	query     string
 	requester *discordgo.User
 }
 
@@ -63,17 +63,16 @@ func Pause(ctx *exrouter.Context) {
 	}
 }
 
-func (Player) playQueue(ctx *exrouter.Context, vid string/*temp*/){
+func (Player) playQueue(ctx *exrouter.Context, vid string /*temp*/) {
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
-	var vSes  string
+	var vSes string
 	for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
 			vSes = vs.ChannelID
 		}
 	}
 
-	
 	playSound(ctx.Ses, g.ID, vSes, vid)
 }
 
@@ -89,9 +88,9 @@ func Play(ctx *exrouter.Context) {
 	}
 
 	ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
-	player.vQueue =  append(player.vQueue, video{vids[0], time.Second*0, "", "", "", ctx.Msg.Author}) //This will be expanded upon and is nowhere near finished
+	player.vQueue = append(player.vQueue, video{vids[0], time.Second * 0, "", "", "", ctx.Msg.Author}) //This will be expanded upon and is nowhere near finished
 
-	player.playQueue(ctx, vids[0])//This is also temp and will be updated
+	player.playQueue(ctx, vids[0]) //This is also temp and will be updated
 }
 
 func Disconnect(ctx *exrouter.Context) {
@@ -115,7 +114,7 @@ func Disconnect(ctx *exrouter.Context) {
 }
 
 func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
-	if !config.IsSet("GoogleAPIKey") {
+	if !config.GetString("GoogleAPIKey") {
 		err := fmt.Errorf("GoogleAPIKey is not set in config: %v", config.ConfigFileUsed())
 		log.Print(err)
 		return nil, err
