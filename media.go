@@ -28,20 +28,28 @@ func handleErr(err error, output string) {
 }
 
 func Stop(ctx *exrouter.Context) {
-	if player.eSession.Running() {
-		ctx.Reply("Stopping")
-		player.sSession.SetPaused(true)
-		dc()
+	if player.sSession != nil {
+		if player.eSession.Running() {
+			ctx.Reply("Stopping")
+			player.sSession.SetPaused(true)
+			Disconnect(ctx)
+		}
+	}else{
+		ctx.Reply("No Sound to Stop")
 	}
 }
 
 func Pause(ctx *exrouter.Context) {
-	if player.sSession.Paused() {
-		ctx.Reply("Resuming")
-		player.sSession.SetPaused(false)
-	} else {
-		ctx.Reply("Pausing")
-		player.sSession.SetPaused(true)
+	if player.sSession != nil {
+		if player.sSession.Paused() {
+			ctx.Reply("Resuming")
+			player.sSession.SetPaused(false)
+		} else {
+			ctx.Reply("Pausing")
+			player.sSession.SetPaused(true)
+		}
+	}else{
+		ctx.Reply("No Sound to Pause")
 	}
 }
 
@@ -64,11 +72,6 @@ func Play(ctx *exrouter.Context) {
 			playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
 		}
 	}
-}
-
-func dc(){
-	player.vConn.Speaking(false)
-	player.vConn.Disconnect()
 }
 
 func Disconnect(ctx *exrouter.Context) {
