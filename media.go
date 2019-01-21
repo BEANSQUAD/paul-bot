@@ -27,12 +27,20 @@ func handleErr(err error, output string) {
 }
 
 func Stop(ctx *exrouter.Context) {
+	s := ctx.Ses
+	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
+	handleErr(err, "")
 	if player.eSession.Running() {
 		ctx.Reply("Stopping")
-		player.sSession.SetPaused(true)
 		err := player.eSession.Stop()
+		done := make(chan error)
+		vs := g.VoiceStates[0]
+		vc, err := s.ChannelVoiceJoin(g.ID, vs.ChannelID, false, true)
+		ctx.Reply("Stopping2")
+		player.sSession = dca.NewStream(player.eSession, vc, done)
+		ctx.Reply("Stopping3")
+		err = <-done
 		handleErr(err, "Error stopping encoding stream")
-		ctx.Reply("Stopping")
 	}
 }
 
