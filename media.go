@@ -89,7 +89,7 @@ func Play(ctx *exrouter.Context) {
 
 	videoStruct, err := ytdl.GetVideoInfo(vids[0])
 	handleErr(err, "Error Getting Video Info")
-	
+
 	player.Lock()
 
 	player.vQueue = append(player.vQueue, videoQuery{videoStruct, ctx.Args.After(1), ctx.Msg.Author})
@@ -100,7 +100,6 @@ func Play(ctx *exrouter.Context) {
 	
 	if player.eSession == nil || !player.eSession.Running() {
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
-		if player.sSession != nil {for player.eSession.Running(){}}
 		playSound(*player.vQueue[0].videoInfo)
 	}
 }
@@ -114,7 +113,6 @@ func Skip(ctx *exrouter.Context) {
 		handleErr(err, "Error Stopping Encoding Session")
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[0].videoInfo.ID))
 		player.vQueue = player.vQueue[1:]
-		if player.sSession != nil {for player.eSession.Running(){}}
 		playSound(*player.vQueue[0].videoInfo)
 	}
 }
@@ -213,7 +211,7 @@ func playSound(videoInfo ytdl.VideoInfo) {
 	if len(player.vQueue) > 1{
 		player.vQueue = player.vQueue[1:]
 		playSound(*player.vQueue[0].videoInfo)
-	}else if len(player.vQueue) == 0 {
+	}else{
 		log.Printf("Disconnecting")
 		player.vConn.Disconnect()
 	}
