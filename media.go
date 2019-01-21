@@ -77,8 +77,12 @@ func Play(ctx *exrouter.Context) {
 }
 
 func Disconnect(ctx *exrouter.Context) {
-	player.vConn.Speaking(false)
-	player.vConn.Disconnect()
+	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
+	handleErr(err, "Error Getting Guild Information")
+	for _, vs := range g.VoiceStates {
+		vs.Speaking(false)
+		vs.Disconnect()
+	}
 	ctx.Reply("Disconnected")
 }
 
