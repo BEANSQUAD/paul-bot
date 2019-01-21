@@ -10,6 +10,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+func Exit(ctx *exrouter.Context){
+	os.Exit(1)
+}
+
 func main() {
 	SetupConfig()
 	if config.GetString("DiscordKey") == "" {
@@ -32,6 +36,7 @@ func main() {
 	router.On("disconnect", Disconnect).Desc("disconnect from the current guilds voice channel")
 	router.On("skip", Skip).Desc("disconnect from the current guilds voice channel")
 	router.On("queue", Queue).Desc("disconnect from the current guilds voice channel")
+	router.On("fuckoff", Exit).Desc("Calls os.exit with")
 
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
 		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
