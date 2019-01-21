@@ -16,6 +16,7 @@ func Exit(ctx *exrouter.Context){
 		log.Printf("error setting vConn.Speaking(): %v", err)
 	}
 	err = player.vConn.Disconnect()
+	ctx.Reply("Restarting")
 	os.Exit(1)
 }
 
@@ -75,10 +76,11 @@ func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
 
 	for _, channel := range event.Guild.Channels {
 		if channel.ID == event.Guild.ID {
-			_, err := s.ChannelMessageSend(channel.ID, "(╯°□°）╯︵ ┻━┻)")
+			//JMJ wasnt a fan of it spamming the chat so i have disabled this for now
+			/*_, err := s.ChannelMessageSend(channel.ID, "(╯°□°）╯︵ ┻━┻)")
 			if err != nil {
 				log.Printf("couldn't send guild startup message %v", err)
-			}
+			}*/
 		}
 	}
 }
