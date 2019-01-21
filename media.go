@@ -91,7 +91,7 @@ func Play(ctx *exrouter.Context) {
 	ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
 	player.vQueue =  append(player.vQueue, video{vids[0], time.Second*0, "", "", "", ctx.Msg.Author}) //This will be expanded upon and is nowhere near finished
 
-	player.playQue(ctx, vids[0])//This is also temp and will be updated
+	player.playQueue(ctx, vids[0])//This is also temp and will be updated
 }
 
 func Disconnect(ctx *exrouter.Context) {
