@@ -21,6 +21,7 @@ type Player struct {
 	eSession *dca.EncodeSession
 	sSession *dca.StreamingSession
 	vConn    *discordgo.VoiceConnection
+	vQue []string
 }
 
 func handleErr(err error, output string) {
@@ -51,6 +52,10 @@ func Pause(ctx *exrouter.Context) {
 	} else {
 		ctx.Reply("No Sound to Pause")
 	}
+}
+
+func (Player) playQue(){
+
 }
 
 func Play(ctx *exrouter.Context) {
@@ -147,7 +152,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	options.Volume = 256
 	options.CompressionLevel = 10
 	options.PacketLoss = 1
-	options.BufferedFrames = 100
+	options.BufferedFrames = 1
 
 	videoInfo, err := ytdl.GetVideoInfo(videoID)
 	handleErr(err, "Error Getting Specified Youtube Video Info")
