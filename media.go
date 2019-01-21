@@ -71,7 +71,6 @@ func Play(ctx *exrouter.Context) {
 		if vs.UserID == ctx.Msg.Author.ID {
 			ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
 			playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
-			return
 		}
 	}
 }
