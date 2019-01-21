@@ -19,7 +19,8 @@ func Exit(ctx *exrouter.Context) {
 	}
 	// I've commented this out because apperently it's an 'ineffectual assignment' and I don't know what it will break
 	//err = player.vConn.Disconnect()
-	ctx.Reply("Restarting")it(1)
+	ctx.Reply("Restarting")
+	os.Exit(1)
 }
 
 func main() {
