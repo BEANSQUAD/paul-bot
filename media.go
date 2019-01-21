@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
@@ -163,7 +162,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	defer player.eSession.Cleanup()
 
 	player.vConn.Speaking(true)
-	
+
 	done := make(chan error)
 	player.sSession = dca.NewStream(player.eSession, player.vConn, done)
 	err = <-done
