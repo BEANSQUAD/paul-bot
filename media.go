@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
@@ -20,7 +21,16 @@ type Player struct {
 	eSession *dca.EncodeSession
 	sSession *dca.StreamingSession
 	vConn    *discordgo.VoiceConnection
-	vQue []string
+	vQueue []video
+}
+
+type video struct {
+	id string
+	length time.Duration
+	title string
+	desc string
+	query string
+	requester *discordgo.User
 }
 
 func handleErr(err error, output string) {
@@ -53,14 +63,21 @@ func Pause(ctx *exrouter.Context) {
 	}
 }
 
-func (Player) playQue(){
+func (Player) playQue(ctx *exrouter.Context, vid string/*temp*/){
+	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
+	handleErr(err, "Error Getting Guild Information")
+	var vSes  string
+	for _, vs := range g.VoiceStates {
+		if vs.UserID == ctx.Msg.Author.ID {
+			vSes = vs.ChannelID
+		}
+	}
 
+	
+	playSound(ctx.Ses, g.ID, vSes, vid)
 }
 
 func Play(ctx *exrouter.Context) {
-	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
-	handleErr(err, "Error Getting Guild Information")
-
 	videos, err := ytSearch(ctx.Args.After(1), 1)
 	if err != nil {
 		ctx.Reply(fmt.Errorf("error in ytSearch: %v", err))
@@ -70,13 +87,11 @@ func Play(ctx *exrouter.Context) {
 	for id := range videos {
 		vids = append(vids, id)
 	}
-	for _, vs := range g.VoiceStates {
-		if vs.UserID == ctx.Msg.Author.ID {
-			ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
-			playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
-			return
-		}
-	}
+
+	ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
+	player.vQueue =  append(player.vQueue, video{vids[0], time.Second*0, "", "", "", ctx.Msg.Author}) //This will be expanded upon and is nowhere near finished
+
+	player.playQue(ctx, vids[0])//This is also temp and will be updated
 }
 
 func Disconnect(ctx *exrouter.Context) {
