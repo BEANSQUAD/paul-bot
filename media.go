@@ -27,7 +27,7 @@ type Player struct {
 	vQueue   []videoQuery
 }
 
-type videoQuery struct{
+type videoQuery struct {
 	videoInfo *ytdl.VideoInfo
 	query     string
 	requester *discordgo.User
@@ -52,7 +52,7 @@ func Stop(ctx *exrouter.Context) {
 			ctx.Reply("Stopping")
 			err := player.eSession.Stop()
 			handleErr(err, "Error Stopping Encoding Session")
-		    Disconnect(ctx)
+			Disconnect(ctx)
 		}
 	} else {
 		ctx.Reply("No Sound to Stop")
@@ -102,23 +102,23 @@ func Play(ctx *exrouter.Context) {
 		for id := range videos {
 			vids = append(vids, id)
 		}
-	
+
 		videoStruct, err := ytdl.GetVideoInfo(vids[0])
 		handleErr(err, "Error Getting Video Info")
-	
+
 		player.vQueue = append(player.vQueue, videoQuery{videoStruct, ctx.Args.After(1), ctx.Msg.Author})
-		
+
 		player.Unlock()
-	
-		ctx.Reply(fmt.Sprintf("Added "+ vids[0] + " to queue"))
-		
+
+		ctx.Reply(fmt.Sprintf("Added " + vids[0] + " to queue"))
+
 		if player.eSession == nil || !player.eSession.Running() {
 			ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
 			playSound(*player.vQueue[0].videoInfo)
 		}
-	}else{
+	} else {
 		ctx.Reply("YoutubeAPI Quota Exceeded")
-		Disconnect(ctx);
+		Disconnect(ctx)
 		player.Unlock()
 	}
 }
@@ -193,7 +193,7 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 	channels := make(map[string]string)
 	playlists := make(map[string]string)
 
-	if response != nil{
+	if response != nil {
 		for _, item := range response.Items {
 			switch item.Id.Kind {
 			case "youtube#video":
@@ -204,7 +204,7 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 				playlists[item.Id.PlaylistId] = item.Snippet.Title
 			}
 		}
-	}else{
+	} else {
 		return nil, nil
 	}
 
@@ -241,10 +241,10 @@ func playSound(videoInfo ytdl.VideoInfo) {
 	player.vConn.Speaking(false)
 	player.eSession.Cleanup()
 
-	if len(player.vQueue) > 1{
+	if len(player.vQueue) > 1 {
 		player.vQueue = player.vQueue[1:]
 		playSound(*player.vQueue[0].videoInfo)
-	}else{
+	} else {
 		log.Printf("Disconnecting")
 		player.vConn.Disconnect()
 	}

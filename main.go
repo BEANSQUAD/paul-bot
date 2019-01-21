@@ -12,7 +12,7 @@ import (
 
 // Exit disconnects the bot, and exits the bot.
 // The configuration of docker means that the bot is automatically restarted.
-func Exit(ctx *exrouter.Context){
+func Exit(ctx *exrouter.Context) {
 	err := player.vConn.Speaking(false)
 	if err != nil {
 		log.Printf("error setting vConn.Speaking(): %v", err)
