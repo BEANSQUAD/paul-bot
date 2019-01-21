@@ -67,7 +67,6 @@ func Pause(ctx *exrouter.Context) {
 }
 
 func Play(ctx *exrouter.Context) {
-	player.Lock()
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 	var vSes string
@@ -90,12 +89,14 @@ func Play(ctx *exrouter.Context) {
 
 	videoStruct, err := ytdl.GetVideoInfo(vids[0])
 	handleErr(err, "Error Getting Video Info")
+	
+	player.Lock()
 
 	player.vQueue = append(player.vQueue, videoQuery{videoStruct, ctx.Args.After(1), ctx.Msg.Author})
 
-	ctx.Reply(fmt.Sprintf("Added "+ vids[0] + " to queue"))
-
 	player.Unlock()
+
+	ctx.Reply(fmt.Sprintf("Added "+ vids[0] + " to queue"))
 	
 	if player.eSession == nil || !player.eSession.Running() {
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
@@ -105,13 +106,14 @@ func Play(ctx *exrouter.Context) {
 }
 
 func Skip(ctx *exrouter.Context) {
-	player.Lock()
 	if len(player.vQueue) > 1 {
-		player.vQueue = player.vQueue[1:]
+		player.Lock()
 		err := player.eSession.Stop()
+		player.eSession.Cleanup()
+		player.Unlock()
 		handleErr(err, "Error Stopping Encoding Session")
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[0].videoInfo.ID))
-		player.Unlock()
+		player.vQueue = player.vQueue[1:]
 		if player.sSession != nil {for player.eSession.Running(){}}
 		playSound(*player.vQueue[0].videoInfo)
 	}
