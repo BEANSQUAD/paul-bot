@@ -20,6 +20,7 @@ var player Player
 type Player struct {
 	eSession *dca.EncodeSession
 	sSession *dca.StreamingSession
+	vConn    *discordgo.VoiceConnection
 }
 
 func handleErr(err error, output string) {
@@ -47,7 +48,7 @@ func Pause(ctx *exrouter.Context) {
 	if player.sSession.Paused() {
 		ctx.Reply("Resuming")
 		player.sSession.SetPaused(false)
-	}else{
+	} else {
 		ctx.Reply("Pausing")
 		player.sSession.SetPaused(true)
 	}
@@ -63,16 +64,22 @@ func Play(ctx *exrouter.Context) {
 	}
 
 	var vids []string
-		for id := range videos {
+	for id := range videos {
 		vids = append(vids, id)
 	}
-		for _, vs := range g.VoiceStates {
+	for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
 			ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
 			playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
 			return
 		}
 	}
+}
+
+func Disconnect(ctx *exrouter.Context) {
+	player.vConn.Speaking(false)
+	player.vConn.Disconnect()
+	ctx.Reply("Disconnected")
 }
 
 func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
@@ -115,6 +122,7 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 func playSound(s *discordgo.Session, guildID, channelID string, videoID string) {
 	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
 	handleErr(err, "Error Joining Specified Voice Channel")
+	player.vConn = vc
 
 	vc.Speaking(true)
 	time.Sleep(250 * time.Millisecond)

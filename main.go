@@ -29,6 +29,7 @@ func main() {
 	router.On("play", Play).Desc("plays audio from source/query audio")
 	router.On("stop", Stop).Desc("stops current audio playing")
 	router.On("pause", Pause).Desc("(un)pause current audio playing")
+	router.On("disconnect", Disconnect).Desc("disconnect from the current guilds voice channel")
 
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
 		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
