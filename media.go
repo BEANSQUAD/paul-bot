@@ -18,7 +18,7 @@ import (
 var player Player
 
 // Player is a struct grouping together relevant information about the bot's playing capabilities.
-// This ensures consistency accross play calls.
+// This ensures consistency across play calls.
 type Player struct {
 	sync.Mutex
 	eSession *dca.EncodeSession
