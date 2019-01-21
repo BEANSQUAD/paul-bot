@@ -70,14 +70,23 @@ func Play(ctx *exrouter.Context) {
 		if vs.UserID == ctx.Msg.Author.ID {
 			ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
 			playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
+			return
 		}
 	}
 }
 
 func Disconnect(ctx *exrouter.Context) {
 	if player.vConn != nil {
-		player.vConn.Speaking(false)
-		player.vConn.Disconnect()
+		err := player.vConn.Speaking(false)
+		if err != nil {
+			log.Printf("error setting vConn.Speaking(): %v", err)
+		}
+		err = player.vConn.Disconnect()
+		if err != nil {
+			log.Printf("error calling vConn.Disconnect(): %v", err)
+			ctx.Reply("couldn't Disconnect VoiceConnection")
+			return
+		}
 		ctx.Reply("Disconnected")
 	} else {
 		ctx.Reply("No VoiceConnections to disconnect")
