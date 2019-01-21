@@ -17,6 +17,8 @@ import (
 
 var player Player
 
+// Player is a struct grouping together relevant information about the bot's playing capabilities.
+// This ensures consistency accross play calls.
 type Player struct {
 	sync.Mutex
 	eSession *dca.EncodeSession
@@ -31,6 +33,8 @@ type videoQuery struct{
 	requester *discordgo.User
 }
 
+// handleErr handles an error, checking if the error returned from a function isn't nil.
+// If it isn't, logs the error.
 func handleErr(err error, output string) {
 	if err != nil {
 		log.Printf(output+", Error: %v", err)
@@ -38,6 +42,9 @@ func handleErr(err error, output string) {
 	}
 }
 
+// Stop stops the currently playing media, resets the queue, and disconnects.
+// If there is nothing playing, will tell the channel as much.
+// Throws an error if it cannot stop the media properly.
 func Stop(ctx *exrouter.Context) {
 	if player.sSession != nil {
 		player.vQueue = player.vQueue[:0]
@@ -52,6 +59,8 @@ func Stop(ctx *exrouter.Context) {
 	}
 }
 
+// Pause toggles the currently playing media between paused and playing.
+// Prints to the channel when it does either, or if there is nothing to pause.
 func Pause(ctx *exrouter.Context) {
 	if player.sSession != nil {
 		if player.sSession.Paused() {
@@ -66,6 +75,10 @@ func Pause(ctx *exrouter.Context) {
 	}
 }
 
+// Play searches for the given string on youtube, and adds the first result to the queue.
+// Throws a variety of errors, should the bot have issues getting the discord guild info,
+// joining the channel, or searching for/retrieving the media requested.
+// Prints to the current channel the retrieved media.
 func Play(ctx *exrouter.Context) {
 
 	player.Lock()
@@ -110,6 +123,8 @@ func Play(ctx *exrouter.Context) {
 	}
 }
 
+// Skip skips the currently playing media, moving to the next one.
+// Prints to the channel the new media that is being played.
 func Skip(ctx *exrouter.Context) {
 	if len(player.vQueue) > 1 {
 		player.Lock()
@@ -120,12 +135,16 @@ func Skip(ctx *exrouter.Context) {
 	}
 }
 
+// Queue prints the currently queued media to the channel.
 func Queue(ctx *exrouter.Context) {
 	for i := range player.vQueue {
 		ctx.Reply(player.vQueue[i].query)
 	}
 }
 
+// Disconnect disconnects the bot from it's current voice channel, and prints to the channel as such.
+// Throws an error and prints to the channel if it tries to disconnect when not in a channel.
+// Throws an error if it cannot disconnect from the current voice channel properly.
 func Disconnect(ctx *exrouter.Context) {
 	if player.vConn == nil {
 		log.Print("Tried to Disconnect when no VoiceConnections existed")
@@ -146,6 +165,9 @@ func Disconnect(ctx *exrouter.Context) {
 	ctx.Reply("Disconnected")
 }
 
+// ytSearch searches youtube for the specified string using the google API.
+// Will return a specified amount of results in a map, along with any errors.
+// Errors occur should the bot not have an API key, or if it cannot search youtube.
 func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
 	if config.GetString("GoogleAPIKey") == "" {
 		err := fmt.Errorf("GoogleAPIKey is not set in config: %v", config.ConfigFileUsed())
@@ -189,6 +211,9 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 	return videos, nil
 }
 
+// playSound configures audio settings to a default, and plays the audio of a specified
+// youtube video from the queue.
+// Throws errors should the bot be unable to download, encode, or stream the audio.
 func playSound(videoInfo ytdl.VideoInfo) {
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
