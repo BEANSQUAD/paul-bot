@@ -26,8 +26,8 @@ func handleErr(err error, output string) {
 	log.Printf(output+", Error: %v", err)
 }
 
-func Stop(ctx *exrouter.Context){
-	if player.eSession.Running(){
+func Stop(ctx *exrouter.Context) {
+	if player.eSession.Running() {
 		ctx.Reply("Stopping")
 		player.sSession.SetPaused(true)
 		err := player.eSession.Stop()
@@ -36,8 +36,8 @@ func Stop(ctx *exrouter.Context){
 	}
 }
 
-func Pause(ctx *exrouter.Context){
-	if player.sSession.Paused(){
+func Pause(ctx *exrouter.Context) {
+	if player.sSession.Paused() {
 		ctx.Reply("Resuming")
 		player.sSession.SetPaused(false)
 	}else{
@@ -61,7 +61,7 @@ func Play(ctx *exrouter.Context) {
 	}
 		for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
-			ctx.Reply("https://www.youtube.com/watch?v=" + "%v", vids[0])
+			ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
 			playSound(ctx.Ses, g.ID, vs.ChannelID, vids[0])
 			return
 		}
