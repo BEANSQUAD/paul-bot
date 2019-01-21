@@ -26,14 +26,18 @@ func handleErr(err error, output string) {
 	log.Printf(output+", Error: %v", err)
 }
 
-func Info(ctx *exrouter.Context){
-	log.Printf("%v", player.eSession.Running())
-}
-
 func Stop(ctx *exrouter.Context){
 	if player.eSession.Running(){
 		err := player.eSession.Stop()
 		handleErr(err, "Error stopping encoding stream")
+	}
+}
+
+func Pause(ctx *exrouter.Context){
+	if player.sSession.Paused(){
+		player.sSession.SetPaused(false)
+	}else{
+		player.sSession.SetPaused(true)
 	}
 }
 
@@ -109,7 +113,7 @@ func playSound(s *discordgo.Session, guildID, channelID string, videoID string) 
 	options.Volume = 256
 	options.CompressionLevel = 10
 	options.PacketLoss = 1
-	options.BufferedFrames = 100
+	options.BufferedFrames = 10
 
 	videoInfo, err := ytdl.GetVideoInfo(videoID)
 	handleErr(err, "Error Getting Specified Youtube Video Info")

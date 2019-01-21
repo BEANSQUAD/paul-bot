@@ -26,9 +26,9 @@ func main() {
 
 	router.On("add", Add).Desc("adds numbers together")
 
-	router.On("play", Play).Desc("plays youtube videos' audio")
-	router.On("info", Info).Desc("gets info on current session")
-	router.On("stop", Stop).Desc("gets info on current session")
+	router.On("play", Play).Desc("plays audio from source/query audio")
+	router.On("stop", Stop).Desc("stops current audio playing")
+	router.On("pause", Pause).Desc("(un)pause current audio playing")
 
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
 		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
