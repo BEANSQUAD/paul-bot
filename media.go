@@ -88,19 +88,28 @@ func Play(ctx *exrouter.Context) {
 	handleErr(err, "Error Getting Video Info")
 
 	player.vQueue = append(player.vQueue, videoQuery{videoStruct, ctx.Args.After(1), ctx.Msg.Author})
+
+	ctx.Reply(fmt.Sprintf("Added "+ vids[0] + " to queue"))
 	
 	if player.eSession == nil || !player.eSession.Running() {
-		ctx.Reply(fmt.Sprintf("https://www.youtube.com/watch?v=%v", vids[0]))
+		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
 		playSound(*player.vQueue[0].videoInfo)
 	}
 }
 
-func Skip(ctx *exrouter.Context){
+func Skip(ctx *exrouter.Context) {
 	if len(player.vQueue) > 1 {
 		player.vQueue = player.vQueue[1:]
 		err := player.eSession.Stop()
 		handleErr(err, "Error Stopping Encoding Session")
+		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[0].videoInfo.ID))
 		playSound(*player.vQueue[0].videoInfo)
+	}
+}
+
+func Queue(ctx *exrouter.Context) {
+	for i := range player.vQueue {
+		ctx.Reply(player.vQueue[i].query)
 	}
 }
 
@@ -162,7 +171,6 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 }
 
 func playSound(videoInfo ytdl.VideoInfo) {
-
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
 	options.Bitrate = 64
@@ -187,12 +195,12 @@ func playSound(videoInfo ytdl.VideoInfo) {
 	err = <-done
 	handleErr(err, "Error Streaming Audio File")
 
-	player.vConn.Speaking(false)
-
-	player.vConn.Disconnect()
-
-	player.vQueue = player.vQueue[1:]
-	if len(player.vQueue) > 0{
+	if len(player.vQueue) > 1{
+		player.vQueue = player.vQueue[1:]
 		playSound(*player.vQueue[0].videoInfo)
+	}else{
+		player.vConn.Speaking(false)
+
+		player.vConn.Disconnect()
 	}
 }
