@@ -99,8 +99,6 @@ func Play(ctx *exrouter.Context) {
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
 		playSound(*player.vQueue[0].videoInfo)
 	}
-
-	player.Unlock()
 }
 
 func Skip(ctx *exrouter.Context) {
@@ -197,7 +195,7 @@ func playSound(videoInfo ytdl.VideoInfo) {
 	handleErr(err, "Error Encoding Audio File")
 
 	player.vConn.Speaking(true)
-	
+
 	player.Unlock()
 
 	done := make(chan error)
