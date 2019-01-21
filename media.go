@@ -106,6 +106,7 @@ func Play(ctx *exrouter.Context) {
 	}else{
 		ctx.Reply("YoutubeAPI Quota Exceeded")
 		Disconnect(ctx);
+		player.Unlock()
 	}
 }
 
