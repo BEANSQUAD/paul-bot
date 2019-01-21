@@ -77,9 +77,13 @@ func Play(ctx *exrouter.Context) {
 }
 
 func Disconnect(ctx *exrouter.Context) {
-	player.vConn.Speaking(false)
-	player.vConn.Disconnect()
-	ctx.Reply("Disconnected")
+	if player.vConn != nil {
+		player.vConn.Speaking(false)
+		player.vConn.Disconnect()
+		ctx.Reply("Disconnected")
+	} else {
+		ctx.Reply("No VoiceConnections to disconnect")
+	}
 }
 
 func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
