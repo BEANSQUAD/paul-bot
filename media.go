@@ -67,7 +67,7 @@ func Pause(ctx *exrouter.Context) {
 }
 
 func Play(ctx *exrouter.Context) {
-	
+
 	player.Lock()
 
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
@@ -84,24 +84,28 @@ func Play(ctx *exrouter.Context) {
 
 	videos, err := ytSearch(ctx.Args.After(1), 1)
 	handleErr(err, "Error Searching Using Query")
-
-	var vids []string
-	for id := range videos {
-		vids = append(vids, id)
-	}
-
-	videoStruct, err := ytdl.GetVideoInfo(vids[0])
-	handleErr(err, "Error Getting Video Info")
-
-	player.vQueue = append(player.vQueue, videoQuery{videoStruct, ctx.Args.After(1), ctx.Msg.Author})
+	if videos != nil {
+		var vids []string
+		for id := range videos {
+			vids = append(vids, id)
+		}
 	
-	player.Unlock()
-
-	ctx.Reply(fmt.Sprintf("Added "+ vids[0] + " to queue"))
+		videoStruct, err := ytdl.GetVideoInfo(vids[0])
+		handleErr(err, "Error Getting Video Info")
 	
-	if player.eSession == nil || !player.eSession.Running() {
-		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
-		playSound(*player.vQueue[0].videoInfo)
+		player.vQueue = append(player.vQueue, videoQuery{videoStruct, ctx.Args.After(1), ctx.Msg.Author})
+		
+		player.Unlock()
+	
+		ctx.Reply(fmt.Sprintf("Added "+ vids[0] + " to queue"))
+		
+		if player.eSession == nil || !player.eSession.Running() {
+			ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
+			playSound(*player.vQueue[0].videoInfo)
+		}
+	}else{
+		ctx.Reply("YoutubeAPI Quota Exceeded")
+		Disconnect(ctx);
 	}
 }
 
@@ -166,16 +170,21 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 	channels := make(map[string]string)
 	playlists := make(map[string]string)
 
-	for _, item := range response.Items {
-		switch item.Id.Kind {
-		case "youtube#video":
-			videos[item.Id.VideoId] = item.Snippet.Title
-		case "youtube#channel":
-			channels[item.Id.ChannelId] = item.Snippet.Title
-		case "youtube#playlist":
-			playlists[item.Id.PlaylistId] = item.Snippet.Title
+	if response != nil{
+		for _, item := range response.Items {
+			switch item.Id.Kind {
+			case "youtube#video":
+				videos[item.Id.VideoId] = item.Snippet.Title
+			case "youtube#channel":
+				channels[item.Id.ChannelId] = item.Snippet.Title
+			case "youtube#playlist":
+				playlists[item.Id.PlaylistId] = item.Snippet.Title
+			}
 		}
+	}else{
+		return nil, nil
 	}
+
 	return videos, nil
 }
 
