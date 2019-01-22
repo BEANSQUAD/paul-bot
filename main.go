@@ -13,23 +13,6 @@ import (
 	"github.com/lalamove/konfig"
 )
 
-// Exit disconnects the bot, and exits the bot.
-// The configuration of docker means that the bot is automatically restarted.
-func Exit(ctx *exrouter.Context) {
-	err := player.vConn.Speaking(false)
-	if err != nil {
-		log.Printf("error setting vConn.Speaking(): %v", err)
-	}
-	// I've commented this out because apperently it's an 'ineffectual assignment' and I don't know what it will break
-	// The disconnect func returns an error but i forgot to handle the error here
-	err = player.vConn.Disconnect()
-	if err != nil {
-		log.Printf("error calling vConn.Disconnect(): %v", err)
-	}
-	ctx.Reply("Restarting")
-	os.Exit(1)
-}
-
 func main() {
 	err := SetupConfig()
 	if err != nil {
@@ -99,4 +82,21 @@ func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
 			}*/
 		}
 	}
+}
+
+// Exit disconnects the bot, and exits the bot.
+// The configuration of docker means that the bot is automatically restarted.
+func Exit(ctx *exrouter.Context) {
+	err := player.vConn.Speaking(false)
+	if err != nil {
+		log.Printf("error setting vConn.Speaking(): %v", err)
+	}
+	// I've commented this out because apperently it's an 'ineffectual assignment' and I don't know what it will break
+	// The disconnect func returns an error but i forgot to handle the error here
+	err = player.vConn.Disconnect()
+	if err != nil {
+		log.Printf("error calling vConn.Disconnect(): %v", err)
+	}
+	ctx.Reply("Restarting")
+	os.Exit(1)
 }
