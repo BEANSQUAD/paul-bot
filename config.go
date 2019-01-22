@@ -3,25 +3,33 @@ package main
 import (
 	"log"
 
-	"github.com/spf13/viper"
+	"github.com/lalamove/konfig"
+	"github.com/lalamove/konfig/loader/klfile"
+	"github.com/lalamove/konfig/parser/kptoml"
 )
 
-var config *viper.Viper
+var configFiles = []klfile.File{
+	{
+		Path:   "./config/vars.toml",
+		Parser: kptoml.Parser,
+	},
+}
 
-// SetupConfig uses viper to configure the go environment, using the parameters set within the config file.
-// This includes setting the API keys for both Discord and Google.
-// Throws an error should the config file be unable to be read.
+func init() {
+	konfig.Init(konfig.DefaultConfig())
+}
+
+// SetupConfig registers a konfig watcher to load configuration values from a
+// file (e.g. API keys, persistent guild settings)
 func SetupConfig() {
-	config = viper.New()
-	config.SetConfigType("toml")
-	config.SetConfigName("config")
-	config.AddConfigPath("/etc/paul-bot")
+	konfig.RegisterLoaderWatcher(
+		klfile.New(&klfile.Config{
+			Files: configFiles,
+			Watch: true,
+		}),
+	)
 
-	config.SetDefault("DiscordKey", "")
-	config.SetDefault("GoogleAPIKey", "")
-
-	err := config.ReadInConfig()
-	if err != nil {
-		log.Panicf("error reading config file: %v", err)
+	if err := konfig.LoadWatch(); err != nil {
+		log.Fatal(err)
 	}
 }
