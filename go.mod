@@ -1,12 +1,6 @@
 module github.com/BEANSQUAD/paul-bot
 
 require (
-	github.com/bwmarrin/discordgo v0.19.0
-	github.com/Necroforger/dgrouter v0.0.0-20190109213045-8092ffb0d2d4
-	github.com/jonas747/dca v0.0.0-20180225204759-bf5d11669cdb
-	github.com/lalamove/konfig v0.0.3
-	github.com/rylio/ytdl v0.5.2-0.20181217105247-44fe64bba886
-	google.golang.org/api v0.1.0
 	contrib.go.opencensus.io/exporter/ocagent v0.4.2 // indirect
 	github.com/Azure/azure-sdk-for-go v24.1.0+incompatible // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
@@ -14,6 +8,7 @@ require (
 	github.com/Jeffail/gabs v1.1.1 // indirect
 	github.com/Microsoft/go-winio v0.4.11 // indirect
 	github.com/NYTimes/gziphandler v1.0.1 // indirect
+	github.com/Necroforger/dgrouter v0.0.0-20190109213045-8092ffb0d2d4
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/PuerkitoBio/goquery v1.5.0 // indirect
 	github.com/SAP/go-hdb v0.13.2 // indirect
@@ -28,6 +23,7 @@ require (
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/boombuler/barcode v1.0.0 // indirect
 	github.com/briankassouf/jose v0.9.1 // indirect
+	github.com/bwmarrin/discordgo v0.19.0
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
 	github.com/centrify/cloud-golang-sdk v0.0.0-20180119173102-7c97cc6fde16 // indirect
 	github.com/chrismalek/oktasdk-go v0.0.0-20181212195951-3430665dfaa0 // indirect
@@ -90,11 +86,13 @@ require (
 	github.com/hashicorp/vault-plugin-secrets-kv v0.0.0-20190115203747-edbfe287c5d9 // indirect
 	github.com/jeffchao/backoff v0.0.0-20140404060208-9d7fd7aa17f2 // indirect
 	github.com/jefferai/jsonx v0.0.0-20160721235117-9cc31c3135ee // indirect
+	github.com/jonas747/dca v0.0.0-20180225204759-bf5d11669cdb
 	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 // indirect
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/jtolds/gls v4.2.1+incompatible // indirect
 	github.com/keybase/go-crypto v0.0.0-20181127160227-255a5089e85a // indirect
+	github.com/lalamove/konfig v0.0.3
 	github.com/lib/pq v1.0.0 // indirect
 	github.com/mattbaird/elastigo v0.0.0-20170123220020-2fe47fd29e4b // indirect
 	github.com/michaelklishin/rabbit-hole v1.4.0 // indirect
@@ -115,6 +113,7 @@ require (
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/pquerna/otp v1.1.0 // indirect
+	github.com/rylio/ytdl v0.5.2-0.20181217105247-44fe64bba886
 	github.com/samuel/go-zookeeper v0.0.0-20180130194729-c4fab1ac1bec // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.3.0 // indirect
@@ -129,6 +128,7 @@ require (
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.9.1 // indirect
+	google.golang.org/api v0.1.0
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/gorethink/gorethink.v4 v4.1.0 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
