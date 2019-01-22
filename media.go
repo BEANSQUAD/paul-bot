@@ -9,6 +9,7 @@ import (
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
+	"github.com/lalamove/konfig"
 	"github.com/rylio/ytdl"
 
 	"google.golang.org/api/googleapi/transport"
@@ -132,7 +133,7 @@ func Skip(ctx *exrouter.Context) {
 		player.Unlock()
 		handleErr(err, "Error Stopping Encoding Session")
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[1].videoInfo.ID))
-	}else{
+	} else {
 		ctx.Reply("Current Song is Last In Queue, Stopping")
 		Stop(ctx)
 	}
@@ -173,13 +174,12 @@ func Disconnect(ctx *exrouter.Context) {
 // Will return a specified amount of results in a map, along with any errors.
 // Errors occur should the bot not have an API key, or if it cannot search youtube.
 func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
-	if config.GetString("GoogleAPIKey") == "" {
-		err := fmt.Errorf("GoogleAPIKey is not set in config: %v", config.ConfigFileUsed())
-		log.Print(err)
+	if konfig.String("GoogleAPIKey") == "" {
+		err := fmt.Errorf("GoogleAPIKey is not set in config file")
 		return nil, err
 	}
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: config.GetString("GoogleAPIKey")},
+		Transport: &transport.APIKey{Key: konfig.String("GoogleAPIKey")},
 	}
 
 	service, err := youtube.New(client)
