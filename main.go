@@ -5,9 +5,11 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
+	"github.com/lalamove/konfig"
 )
 
 // Exit disconnects the bot, and exits the bot.
@@ -29,11 +31,13 @@ func Exit(ctx *exrouter.Context) {
 
 func main() {
 	SetupConfig()
-	if config.GetString("DiscordKey") == "" {
-		log.Panicf("couldn't read DiscordKey from config file: %v", config.ConfigFileUsed())
+
+	for konfig.String("DiscordKey") == "" {
+		log.Print("couldn't read DiscordKey from config file")
+		time.Sleep(time.Duration(5) * time.Second)
 	}
 
-	dg, err := discordgo.New("Bot " + config.GetString("DiscordKey"))
+	dg, err := discordgo.New("Bot " + konfig.String("DiscordKey"))
 	if err != nil {
 		log.Printf("Error creating Discord session: %v", err)
 		return
