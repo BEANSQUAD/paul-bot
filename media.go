@@ -100,7 +100,7 @@ func Play(ctx *exrouter.Context) {
 	if videos != nil {
 		var vids []string
 		for id := range videos {
-			vids = append(vids, id)
+			vids = append(vids, id) 
 		}
 
 		videoStruct, err := ytdl.GetVideoInfo(vids[0])
@@ -140,6 +140,7 @@ func Skip(ctx *exrouter.Context) {
 
 // Queue prints the currently queued media to the channel.
 func Queue(ctx *exrouter.Context) {
+	ctx.Reply("Videos Currently in Queue: ")
 	for i := range player.vQueue {
 		ctx.Reply(player.vQueue[i].query)
 	}
@@ -249,6 +250,7 @@ func playSound(videoInfo ytdl.VideoInfo) {
 		playSound(*player.vQueue[0].videoInfo)
 	} else {
 		log.Printf("Disconnecting")
+		player.vQueue = player.vQueue[:0]
 		player.vConn.Disconnect()
 	}
 }
