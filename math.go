@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 )

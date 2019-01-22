@@ -1,11 +1,12 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
@@ -30,7 +31,10 @@ func Exit(ctx *exrouter.Context) {
 }
 
 func main() {
-	SetupConfig()
+	err := SetupConfig()
+	if err != nil {
+		log.Fatalf("error setting up config: %v", err)
+	}
 
 	for konfig.String("DiscordKey") == "" {
 		log.Print("couldn't read DiscordKey from config file")

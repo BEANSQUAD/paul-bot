@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/lalamove/konfig"
 	"github.com/lalamove/konfig/loader/klfile"
 	"github.com/lalamove/konfig/parser/kptoml"
@@ -21,7 +19,7 @@ func init() {
 
 // SetupConfig registers a konfig watcher to load configuration values from a
 // file (e.g. API keys, persistent guild settings)
-func SetupConfig() {
+func SetupConfig() error {
 	konfig.RegisterLoaderWatcher(
 		klfile.New(&klfile.Config{
 			Files: configFiles,
@@ -29,7 +27,6 @@ func SetupConfig() {
 		}),
 	)
 
-	if err := konfig.LoadWatch(); err != nil {
-		log.Fatal(err)
-	}
+	err := konfig.LoadWatch()
+	return err
 }
