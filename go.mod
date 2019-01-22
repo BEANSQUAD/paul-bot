@@ -8,7 +8,7 @@ require (
 	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 // indirect
 	github.com/lalamove/konfig v0.0.3
 	github.com/rylio/ytdl v0.5.2-0.20181217105247-44fe64bba886
-	github.com/sirupsen/logrus v1.3.0 // indirect
+	github.com/sirupsen/logrus v1.3.0
 	google.golang.org/api v0.1.0
 )
 

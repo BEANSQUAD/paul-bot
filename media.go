@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+	"strings"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
@@ -26,6 +28,7 @@ type Player struct {
 	sSession *dca.StreamingSession
 	vConn    *discordgo.VoiceConnection
 	vQueue   []videoQuery
+	delay    bool //test var to see what the issue is with timing on switching vids
 }
 
 type videoQuery struct {
@@ -39,7 +42,6 @@ type videoQuery struct {
 func handleErr(err error, output string) {
 	if err != nil {
 		log.Printf(output+", Error: %v", err)
-
 	}
 }
 
@@ -76,12 +78,27 @@ func Pause(ctx *exrouter.Context) {
 	}
 }
 
+func getVidString(input string) []string {
+	var vids []string
+	if strings.HasPrefix(input, "https://www.youtube.com/watch?v=") {
+		vids = append(vids, strings.TrimLeft(input, "https://www.youtube.com/watch?v="))
+	} else {
+		videos, err := ytSearch(input, 1)
+		handleErr(err, "Error Searching Using Query")
+		if videos != nil {
+			for id := range videos {
+				vids = append(vids, id)
+			}
+		}
+	}
+	return vids
+}
+
 // Play searches for the given string on youtube, and adds the first result to the queue.
 // Throws a variety of errors, should the bot have issues getting the discord guild info,
 // joining the channel, or searching for/retrieving the media requested.
 // Prints to the current channel the retrieved media.
 func Play(ctx *exrouter.Context) {
-
 	player.Lock()
 
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
@@ -96,13 +113,9 @@ func Play(ctx *exrouter.Context) {
 	player.vConn, err = ctx.Ses.ChannelVoiceJoin(g.ID, vSes, false, true)
 	handleErr(err, "Error Joining Specified Voice Channel")
 
-	videos, err := ytSearch(ctx.Args.After(1), 1)
-	handleErr(err, "Error Searching Using Query")
-	if videos != nil {
-		var vids []string
-		for id := range videos {
-			vids = append(vids, id) 
-		}
+	vids := getVidString(ctx.Args.After(1))
+
+	if vids != nil {
 
 		videoStruct, err := ytdl.GetVideoInfo(vids[0])
 		handleErr(err, "Error Getting Video Info")
@@ -129,6 +142,7 @@ func Play(ctx *exrouter.Context) {
 func Skip(ctx *exrouter.Context) {
 	if len(player.vQueue) > 1 {
 		player.Lock()
+		player.delay = false
 		err := player.eSession.Stop()
 		player.Unlock()
 		handleErr(err, "Error Stopping Encoding Session")
@@ -245,11 +259,20 @@ func playSound(videoInfo ytdl.VideoInfo) {
 	player.vConn.Speaking(false)
 	player.eSession.Cleanup()
 
+	for {
+		finished, err := player.sSession.Finished()
+		handleErr(err, "Error checking if stream is finished")
+		if finished {
+			break
+		}
+	}
+
 	if len(player.vQueue) > 1 {
+		log.Printf("Playing Next In Queue")
 		player.vQueue = player.vQueue[1:]
 		playSound(*player.vQueue[0].videoInfo)
 	} else {
-		log.Printf("Disconnecting")
+		log.Printf("Disconnecting due to empty queue")
 		player.vQueue = player.vQueue[:0]
 		player.vConn.Disconnect()
 	}
