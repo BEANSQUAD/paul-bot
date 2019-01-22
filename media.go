@@ -131,7 +131,10 @@ func Skip(ctx *exrouter.Context) {
 		err := player.eSession.Stop()
 		player.Unlock()
 		handleErr(err, "Error Stopping Encoding Session")
-		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[0].videoInfo.ID))
+		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[1].videoInfo.ID))
+	}else{
+		ctx.Reply("Current Song is Last In Queue, Stopping")
+		Stop(ctx)
 	}
 }
 

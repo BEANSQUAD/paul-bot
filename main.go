@@ -18,7 +18,11 @@ func Exit(ctx *exrouter.Context) {
 		log.Printf("error setting vConn.Speaking(): %v", err)
 	}
 	// I've commented this out because apperently it's an 'ineffectual assignment' and I don't know what it will break
-	//err = player.vConn.Disconnect()
+	// The disconnect func returns an error but i forgot to handle the error here
+	err = player.vConn.Disconnect()
+	if err != nil {
+		log.Printf("error calling vConn.Disconnect(): %v", err)
+	}
 	ctx.Reply("Restarting")
 	os.Exit(1)
 }
