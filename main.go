@@ -53,6 +53,7 @@ func main() {
 	router.On("disconnect", Disconnect).Desc("disconnect from the current guilds voice channel")
 	router.On("skip", Skip).Desc("disconnect from the current guilds voice channel")
 	router.On("queue", Queue).Desc("disconnect from the current guilds voice channel")
+	router.On("buffer", Buffer).Desc("disconnect from the current guilds voice channel")
 	router.On("fuckoff", Exit).Desc("Calls os.exit with")
 
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {

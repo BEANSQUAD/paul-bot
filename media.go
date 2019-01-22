@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -24,11 +25,11 @@ var player Player
 // This ensures consistency across play calls.
 type Player struct {
 	sync.Mutex
-	eSession *dca.EncodeSession
-	sSession *dca.StreamingSession
-	vConn    *discordgo.VoiceConnection
-	vQueue   []videoQuery
-	delay    bool //test var to see what the issue is with timing on switching vids
+	eSession   *dca.EncodeSession
+	sSession   *dca.StreamingSession
+	vConn      *discordgo.VoiceConnection
+	vQueue     []videoQuery
+	bufferSize int
 }
 
 type videoQuery struct {
@@ -60,6 +61,14 @@ func Stop(ctx *exrouter.Context) {
 	} else {
 		ctx.Reply("No Sound to Stop")
 	}
+}
+
+func Buffer(ctx *exrouter.Context) {
+	log.Printf("Buffer Change Request")
+	var err error
+	player.bufferSize, err = strconv.Atoi(ctx.Args[1])
+	handleErr(err, "Failed to parse buffer input")
+	log.Printf("Current Buffer: %v", player.bufferSize)
 }
 
 // Pause toggles the currently playing media between paused and playing.
@@ -142,7 +151,6 @@ func Play(ctx *exrouter.Context) {
 func Skip(ctx *exrouter.Context) {
 	if len(player.vQueue) > 1 {
 		player.Lock()
-		player.delay = false
 		err := player.eSession.Stop()
 		player.Unlock()
 		handleErr(err, "Error Stopping Encoding Session")
@@ -240,7 +248,7 @@ func playSound(videoInfo ytdl.VideoInfo) {
 	options.Volume = 256
 	options.CompressionLevel = 10
 	options.PacketLoss = 1
-	options.BufferedFrames = 1
+	options.BufferedFrames = player.bufferSize
 
 	format := videoInfo.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
 	downloadURL, err := videoInfo.GetDownloadURL(format)
@@ -251,10 +259,12 @@ func playSound(videoInfo ytdl.VideoInfo) {
 
 	player.vConn.Speaking(true)
 
-	done := make(chan error)
-	player.sSession = dca.NewStream(player.eSession, player.vConn, done)
-	err = <-done
-	handleErr(err, "Error Streaming Audio File")
+	for player.eSession.Running() {
+		done := make(chan error)
+		player.sSession = dca.NewStream(player.eSession, player.vConn, done)
+		err = <-done
+		handleErr(err, "Error Streaming Audio File")
+	}
 
 	player.vConn.Speaking(false)
 	player.eSession.Cleanup()
