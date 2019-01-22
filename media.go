@@ -259,28 +259,23 @@ func playSound(videoInfo ytdl.VideoInfo) {
 
 	player.vConn.Speaking(true)
 
+	log.Printf("test")
+
 	for player.eSession.Running() {
 		done := make(chan error)
 		player.sSession = dca.NewStream(player.eSession, player.vConn, done)
 		err = <-done
 		handleErr(err, "Error Streaming Audio File")
+		log.Printf("%v", player.eSession.Running())
 	}
 
 	player.vConn.Speaking(false)
 	player.eSession.Cleanup()
 
-	for {
-		finished, err := player.sSession.Finished()
-		handleErr(err, "Error checking if stream is finished")
-		if finished {
-			break
-		}
-	}
-
 	if len(player.vQueue) > 1 {
 		log.Printf("Playing Next In Queue")
 		player.vQueue = player.vQueue[1:]
-		playSound(*player.vQueue[0].videoInfo)
+		defer playSound(*player.vQueue[0].videoInfo)
 	} else {
 		log.Printf("Disconnecting due to empty queue")
 		player.vQueue = player.vQueue[:0]
