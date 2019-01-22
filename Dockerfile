@@ -16,7 +16,7 @@ google.golang.org/api/googleapi/transport
 COPY . /app
 RUN go build -v -o paul-bot .
 
-FROM alpine
+FROM alpine:edge
 RUN apk add --no-cache ca-certificates youtube-dl ffmpeg
 WORKDIR /app
 COPY --from=builder /app/paul-bot /app/paul-bot
