@@ -1,6 +1,3 @@
 {
-    "go.formatFlags": [
-        "-s"
-    ],
-    "go.formatTool": "gofmt"
+    "go.formatTool": "goimports"
 }
