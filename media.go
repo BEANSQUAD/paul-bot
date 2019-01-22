@@ -261,11 +261,13 @@ func playSound(videoInfo ytdl.VideoInfo) {
 
 	log.Printf("test")
 
-	done := make(chan error)
-	player.sSession = dca.NewStream(player.eSession, player.vConn, done)
-	err = <-done
-	handleErr(err, "Error Streaming Audio File")
-	log.Printf(player.eSession.FFMPEGMessages())
+	for player.eSession.Running() {
+		done := make(chan error)
+		player.sSession = dca.NewStream(player.eSession, player.vConn, done)
+		err = <-done
+		handleErr(err, "Error Streaming Audio File")
+		log.Printf("%v", player.eSession.Running())
+	}
 
 	player.vConn.Speaking(false)
 	player.eSession.Cleanup()
