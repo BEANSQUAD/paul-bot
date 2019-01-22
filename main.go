@@ -61,7 +61,7 @@ func main() {
 	router.On("fuckoff", Exit).Desc("Calls os.exit with")
 
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
-		router.FindAndExecute(dg, "!`", dg.State.User.ID, m.Message)
+		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
 	})
 
 	dg.AddHandler(ready)
