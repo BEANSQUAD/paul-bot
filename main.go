@@ -30,7 +30,10 @@ func Exit(ctx *exrouter.Context) {
 }
 
 func main() {
-	SetupConfig()
+	err := SetupConfig()
+	if err != nil {
+		log.Fatalf("error setting up config: %v", err)
+	}
 
 	for konfig.String("DiscordKey") == "" {
 		log.Print("couldn't read DiscordKey from config file")
