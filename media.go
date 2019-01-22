@@ -259,8 +259,6 @@ func playSound(videoInfo ytdl.VideoInfo) {
 
 	player.vConn.Speaking(true)
 
-	log.Printf("test")
-
 	done := make(chan error)
 	player.sSession = dca.NewStream(player.eSession, player.vConn, done)
 	err = <-done
