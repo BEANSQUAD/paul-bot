@@ -82,7 +82,7 @@ func main() {
 }
 
 func ready(s *discordgo.Session, _ *discordgo.Ready) {
-	s.UpdateStatus(0, "Botting It Up")
+	s.UpdateStatus(0, viper.GetString("StatusMessage"))
 }
 
 // Exit disconnects the bot from any voice channels, and calls os.Exit.
