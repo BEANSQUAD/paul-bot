@@ -30,6 +30,8 @@ func main() {
 		return
 	}
 
+	SetupLogger(dg)
+
 	router := exrouter.New()
 
 	router.On("add", Add).Desc("adds numbers together")
