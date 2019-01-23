@@ -34,16 +34,20 @@ func main() {
 
 	router := exrouter.New()
 
+	// math
 	router.On("add", Add).Desc("adds numbers together")
 
+	// media
 	router.On("play", Play).Desc("plays audio from source/query audio")
 	router.On("stop", Stop).Desc("stops current audio playing")
-	router.On("pause", Pause).Desc("(un)pause current audio playing")
+	router.On("pause", Pause).Desc("pause and unpause current audio playing")
 	router.On("disconnect", Disconnect).Desc("disconnect from the current guilds voice channel")
-	router.On("skip", Skip).Desc("disconnect from the current guilds voice channel")
-	router.On("queue", Queue).Desc("disconnect from the current guilds voice channel")
-	router.On("buffer", Buffer).Desc("disconnect from the current guilds voice channel")
-	router.On("fuckoff", Exit).Desc("Calls os.exit with")
+	router.On("skip", Skip).Desc("skips the currently playing video")
+	router.On("queue", Queue).Desc("shows the video queue")
+	router.On("buffer", Buffer).Desc("tweaks the websocket audio buffer frame count")
+
+	// misc
+	router.On("exit", Exit).Desc("exits the bot")
 	router.On("log", Log).Desc("makes a call to log.Print with a message")
 
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
@@ -51,57 +55,36 @@ func main() {
 	})
 
 	dg.AddHandler(ready)
-	dg.AddHandler(guildCreate)
 
 	// Open the websocket and begin listening for events.
 	err = dg.Open()
 	if err != nil {
-		log.Printf("Error opening Discord session: %v", err)
+		log.Printf("error opening Discord session: %v", err)
 	}
+	defer dg.Close()
 
 	log.Println("running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
-
-	dg.Close()
 }
 
 func ready(s *discordgo.Session, event *discordgo.Ready) {
 	s.UpdateStatus(0, "Botting It Up")
 }
 
-func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
-	if event.Guild.Unavailable {
-		return
-	}
-
-	for _, channel := range event.Guild.Channels {
-		if channel.ID == event.Guild.ID {
-			//JMJ wasnt a fan of it spamming the chat so i have disabled this for now
-			/*_, err := s.ChannelMessageSend(channel.ID, "(╯°□°）╯︵ ┻━┻)")
-			if err != nil {
-				log.Printf("couldn't send guild startup message %v", err)
-			}*/
-		}
-	}
-}
-
-// Exit disconnects the bot, and exits the bot.
-// The configuration of docker means that the bot is automatically restarted.
+// Exit disconnects the bot from any voice channels, and calls os.Exit.
 func Exit(ctx *exrouter.Context) {
 	err := player.vConn.Speaking(false)
 	if err != nil {
 		log.Printf("error setting vConn.Speaking(): %v", err)
 	}
-	// I've commented this out because apperently it's an 'ineffectual assignment' and I don't know what it will break
-	// The disconnect func returns an error but i forgot to handle the error here
 	err = player.vConn.Disconnect()
 	if err != nil {
 		log.Printf("error calling vConn.Disconnect(): %v", err)
 	}
-	ctx.Reply("Restarting")
-	os.Exit(1)
+	ctx.Reply("Exiting")
+	os.Exit(0)
 }
 
 func Log(ctx *exrouter.Context) {
@@ -109,4 +92,3 @@ func Log(ctx *exrouter.Context) {
 	ctx.Reply("logged: " + msg)
 	log.Printf("log command: %v", msg)
 }
-

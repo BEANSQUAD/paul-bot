@@ -14,7 +14,6 @@ type DiscordHook struct {
 }
 
 func (h *DiscordHook) Fire(e *logrus.Entry) error {
-
 	color := 0x0
 	switch e.Level {
 	case logrus.PanicLevel, logrus.FatalLevel:
