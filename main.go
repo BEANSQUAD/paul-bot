@@ -58,7 +58,7 @@ func main() {
 	router.On("exit", Exit).Desc("exits the bot")
 
 	dg.AddHandler(ready)
-	dg.AddHandler(guildCreate)
+	dg.AddHandler(initGuildCfg)
 
 	dg.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if m.Author.ID == s.State.User.ID {
@@ -83,24 +83,6 @@ func main() {
 
 func ready(s *discordgo.Session, _ *discordgo.Ready) {
 	s.UpdateStatus(0, "Botting It Up")
-}
-
-func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
-	if e.Guild.Unavailable {
-		return
-	}
-	guildCfg := viper.GetStringMapString("guild." + e.Guild.ID)
-	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
-	if len(guildCfg) == 0 {
-		log.Infof("setting guild %v to default", e.Guild.ID)
-		viper.SetDefault("guild."+e.Guild.ID, DefaultGuildCfg)
-		err := viper.WriteConfig()
-		if err != nil {
-			log.Errorf("error writing config while setting %v: %v", e.Guild.ID, err)
-		}
-	}
-	guildCfg = viper.GetStringMapString("guild." + e.Guild.ID)
-	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
 }
 
 // Exit disconnects the bot from any voice channels, and calls os.Exit.
