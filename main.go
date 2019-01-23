@@ -50,11 +50,16 @@ func main() {
 	router.On("exit", Exit).Desc("exits the bot")
 	router.On("log", Log).Desc("makes a call to log.Print with a message")
 
-	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
-		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
-	})
-
 	dg.AddHandler(ready)
+	dg.AddHandler(guildCreate)
+
+	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
+		guildCfg := konfig.StringMapString("guildCfg-" + m.GuildID)
+		if guildCfg == nil { // map zero type is nil
+			konfig.Set("guildCfg-"+m.GuildID, DefaultGuildCfg)
+		}
+		router.FindAndExecute(dg, guildCfg["prefix"], dg.State.User.ID, m.Message)
+	})
 
 	// Open the websocket and begin listening for events.
 	err = dg.Open()
@@ -69,8 +74,18 @@ func main() {
 	<-sc
 }
 
-func ready(s *discordgo.Session, event *discordgo.Ready) {
+func ready(s *discordgo.Session, _ *discordgo.Ready) {
 	s.UpdateStatus(0, "Botting It Up")
+}
+
+func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
+	if e.Guild.Unavailable {
+		return
+	}
+	guildCfg := konfig.StringMapString("guildCfg-" + e.Guild.ID)
+	if guildCfg == nil { // map zero type is nil
+		konfig.Set("guildCfg-"+e.Guild.ID, DefaultGuildCfg)
+	}
 }
 
 // Exit disconnects the bot from any voice channels, and calls os.Exit.

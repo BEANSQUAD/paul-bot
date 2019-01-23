@@ -13,6 +13,11 @@ var configFiles = []klfile.File{
 	},
 }
 
+// DefaultGuildCfg contains the default options that should exist for a guild
+var DefaultGuildCfg = map[string]string{
+	"prefix": "!",
+}
+
 func init() {
 	konfig.Init(konfig.DefaultConfig())
 }
