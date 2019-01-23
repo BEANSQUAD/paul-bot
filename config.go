@@ -93,6 +93,7 @@ func GuildConfigSet(ctx *exrouter.Context) {
 		log.Errorf("could not set guild config %v to %v: %v", guildKey, value, err)
 		ctx.Reply(fmt.Sprintf("couldn't set %v to %v", key, value))
 	}
+	ctx.Reply(fmt.Sprintf("set %v to %v", key, value))
 }
 func GlobalConfigSet(ctx *exrouter.Context) {
 }
