@@ -84,12 +84,12 @@ func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
 		return
 	}
 	guildCfg := viper.GetStringMapString("guild." + e.Guild.ID)
+	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
 	if guildCfg == nil { // map zero type is nil
-		log.Infof("guild.%v is nil, setting default", e.Guild.ID)
 		viper.Set("guild."+e.Guild.ID, DefaultGuildCfg)
 		viper.WriteConfig()
 	}
-	log.Infof("guild.%v contents: %v", e.Guild.ID, guildCfg)
+	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
 }
 
 // Exit disconnects the bot from any voice channels, and calls os.Exit.
