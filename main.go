@@ -120,6 +120,7 @@ func Log(ctx *exrouter.Context) {
 	msg := args[:len(args)]
 	level, err := log.ParseLevel(args[len(args):])
 	if err != nil { // no level in last arg
+		log.Infof("logrus ParseLevel error: %v", err)
 		msg += args[len(args):]
 		level = log.InfoLevel
 	}
