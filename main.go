@@ -116,7 +116,14 @@ func Exit(ctx *exrouter.Context) {
 }
 
 func Log(ctx *exrouter.Context) {
-	msg := ctx.Args.After(1)
-	ctx.Reply("logged: " + msg)
-	log.Printf("log command: %v", msg)
+	args := ctx.Args.After(1)
+	msg := args[:len(args)]
+	level, err := log.ParseLevel(args[len(args):])
+	if err != nil { // no level in last arg
+		msg += args[len(args):]
+		level = log.InfoLevel
+	}
+	ctx.Reply(fmt.Sprintf("logged msg '%v' at level %v", msg, level))
+	std := log.StandardLogger()
+	std.Logf(level, "message command log: %v", msg)
 }
