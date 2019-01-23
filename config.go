@@ -20,5 +20,9 @@ func SetupConfig() error {
 	if err != nil {
 		return err
 	}
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		log.Debugf("Config file changed: %v", e.Name)
+	})
 	return nil
 }
