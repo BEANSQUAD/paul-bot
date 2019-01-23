@@ -84,10 +84,10 @@ func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
 	if e.Guild.Unavailable {
 		return
 	}
-	guildCfg := viper.Get("guild." + e.Guild.ID)
+	guildCfg := viper.GetStringMapString("guild." + e.Guild.ID)
 	if guildCfg == nil { // map zero type is nil
 		log.Infof("guild.%v is nil, setting default", e.Guild.ID)
-		viper.Set(fmt.Sprintf("guild.%v", e.Guild.ID), DefaultGuildCfg)
+		viper.Set("guild."+e.Guild.ID, DefaultGuildCfg)
 		viper.WriteConfig()
 	}
 	log.Infof("guild.%v contents: %v", e.Guild.ID, guildCfg)
