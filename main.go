@@ -44,6 +44,7 @@ func main() {
 	router.On("queue", Queue).Desc("disconnect from the current guilds voice channel")
 	router.On("buffer", Buffer).Desc("disconnect from the current guilds voice channel")
 	router.On("fuckoff", Exit).Desc("Calls os.exit with")
+	router.On("log", Log).Desc("makes a call to log.Print with a message")
 
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
 		router.FindAndExecute(dg, "!", dg.State.User.ID, m.Message)
@@ -102,3 +103,10 @@ func Exit(ctx *exrouter.Context) {
 	ctx.Reply("Restarting")
 	os.Exit(1)
 }
+
+func Log(ctx *exrouter.Context) {
+	msg := ctx.Args.After(1)
+	ctx.Reply("logged: " + msg)
+	log.Printf("log command: %v", msg)
+}
+
