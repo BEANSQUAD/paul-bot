@@ -47,9 +47,15 @@ func main() {
 	router.On("queue", Queue).Desc("shows the video queue")
 	router.On("buffer", Buffer).Desc("tweaks the websocket audio buffer frame count")
 
+	// logging
+	router.On("log", Log).Desc("makes a call to log.Print with a message")
+
+	// config
+	router.On("set", GuildConfigSet).Desc("changes settings for the current server")
+	router.On("gset", GlobalConfigSet).Desc("changes global settings")
+
 	// misc
 	router.On("exit", Exit).Desc("exits the bot")
-	router.On("log", Log).Desc("makes a call to log.Print with a message")
 
 	dg.AddHandler(ready)
 	dg.AddHandler(guildCreate)
