@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
 	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -45,4 +47,17 @@ func (h *DiscordHook) Levels() []logrus.Level {
 
 func SetupLogger(s *discordgo.Session) {
 	logrus.AddHook(&DiscordHook{s})
+}
+
+func Log(ctx *exrouter.Context) {
+	msg := ctx.Args.After(2)
+	level, err := log.ParseLevel(ctx.Args.Get(1))
+	if err != nil { // no level in first arg
+		log.Infof("logrus ParseLevel error: %v", err)
+		msg = ctx.Args.Get(1) + " " + msg
+		level = log.InfoLevel
+	}
+	ctx.Reply(fmt.Sprintf("logged msg '%v' at level %v", msg, level))
+	std := log.StandardLogger()
+	std.Logf(level, "message command log: %v", msg)
 }
