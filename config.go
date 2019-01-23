@@ -50,18 +50,12 @@ func initGuildCfg(s *discordgo.Session, e *discordgo.GuildCreate) {
 	if e.Guild.Unavailable {
 		return
 	}
-	guildCfg := viper.GetStringMapString("guild." + e.Guild.ID)
-	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
-	if len(guildCfg) == 0 {
-		log.Infof("setting guild %v to default", e.Guild.ID)
-		viper.SetDefault("guild."+e.Guild.ID, DefaultGuildCfg)
-		err := viper.WriteConfig()
-		if err != nil {
-			log.Errorf("error writing config while setting %v: %v", e.Guild.ID, err)
-		}
+	log.Infof("setting defaults for new guild: %v (%v)", e.Guild.Name, e.Guild.ID)
+	viper.SetDefault("guild."+e.Guild.ID, DefaultGuildCfg)
+	err := viper.WriteConfig()
+	if err != nil {
+		log.Errorf("error writing config while setting %v: %v", e.Guild.ID, err)
 	}
-	guildCfg = viper.GetStringMapString("guild." + e.Guild.ID)
-	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
 }
 
 func GuildConfigSet(ctx *exrouter.Context) {
