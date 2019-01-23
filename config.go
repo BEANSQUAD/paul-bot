@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/fsnotify/fsnotify"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
