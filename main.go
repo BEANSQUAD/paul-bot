@@ -86,7 +86,7 @@ func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
 	}
 	guildCfg := konfig.StringMapString("guildCfg-" + e.Guild.ID)
 	if guildCfg == nil { // map zero type is nil
-		log.Infof("guildCfg-%v is nil, setting default", m.GuildID)
+		log.Infof("guildCfg-%v is nil, setting default", e.Guild.ID)
 		konfig.Set("guildCfg-"+e.Guild.ID, DefaultGuildCfg)
 	}
 	log.Infof("guildCfg-%v contents: %v", e.Guild.ID, guildCfg)
