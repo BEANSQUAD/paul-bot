@@ -59,7 +59,6 @@ func main() {
 			return
 		}
 		prefix := viper.GetString(fmt.Sprintf("guild.%v.prefix", m.GuildID))
-		log.Infof("prefix is: %v", prefix)
 		router.FindAndExecute(dg, prefix, dg.State.User.ID, m.Message)
 	})
 
