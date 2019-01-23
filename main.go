@@ -19,14 +19,14 @@ func main() {
 		log.Fatalf("error setting up config: %v", err)
 	}
 
-	for konfig.String("DiscordKey") == "" {
-		log.Print("couldn't read DiscordKey from config file")
+	for konfig.String("DiscordAPIKey") == "" {
+		log.Print("couldn't read DiscordAPIKey from config file")
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 
-	dg, err := discordgo.New("Bot " + konfig.String("DiscordKey"))
+	dg, err := discordgo.New("Bot " + konfig.String("DiscordAPIKey"))
 	if err != nil {
-		log.Printf("Error creating Discord session: %v", err)
+		log.Printf("error creating Discord session: %v", err)
 		return
 	}
 
