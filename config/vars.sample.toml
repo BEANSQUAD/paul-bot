@@ -1,7 +1,7 @@
 # key to authenticate with Discord
 # create an application at https://discordapp.com/developers/applications/
 # create a bot under the application, and copy the token here
-DiscordKey = ""
+DiscordAPIKey = ""
 
 GoogleAPIKey = ""
 
