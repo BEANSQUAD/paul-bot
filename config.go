@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
 	"github.com/fsnotify/fsnotify"
@@ -74,11 +76,20 @@ func initGuildCfg(s *discordgo.Session, e *discordgo.GuildCreate) {
 	viper.SetDefault("guild."+e.Guild.ID, DefaultGuildCfg)
 	err := viper.WriteConfig()
 	if err != nil {
-		log.Errorf("error writing config while setting %v: %v", e.Guild.ID, err)
+		log.Errorf("could not write config while setting %v: %v", e.Guild.ID, err)
 	}
 }
 
 func GuildConfigSet(ctx *exrouter.Context) {
+	key := ctx.Args.Get(1)
+	value := ctx.Args.Get(2)
+	guildKey := fmt.Sprintf("guild.%v.%v", ctx.Msg.GuildID, key)
+
+	err := configSet(guildKey, value)
+	if err != nil {
+		log.Errorf("could not set guild config %v to %v: %v", guildKey, value, err)
+		ctx.Reply("couldn't set %v to %v", key, value)
+	}
 }
 func GlobalConfigSet(ctx *exrouter.Context) {
 }
