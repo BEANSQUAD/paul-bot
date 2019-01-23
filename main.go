@@ -85,7 +85,7 @@ func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
 	}
 	guildCfg := viper.GetStringMapString("guild." + e.Guild.ID)
 	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
-	if guildCfg == nil { // map zero type is nil
+	if len(guildCfg) == 0 { // map zero type is nil
 		log.Infof("setting guild %v to default %v", e.Guild.ID, guildCfg)
 		viper.SetDefault("guild."+e.Guild.ID, DefaultGuildCfg)
 		err := viper.WriteConfig()
