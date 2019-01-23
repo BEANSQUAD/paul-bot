@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/lalamove/konfig"
@@ -13,13 +14,25 @@ type DiscordHook struct {
 }
 
 func (h *DiscordHook) Fire(e *logrus.Entry) error {
-	msg, err := e.String()
-	if err != nil {
-		return fmt.Errorf("error in coaxing Entry %v to string: %v", e, err)
+
+	color := 0x0
+	switch e.Level {
+	case logrus.PanicLevel, logrus.FatalLevel:
+		color = 0xe00000 // red
+	case logrus.ErrorLevel:
+		color = 0xed6262 // soft red
+	case logrus.WarnLevel:
+		color = 0xf7ba13 // orange
+	case logrus.InfoLevel:
+		color = 0x458fff // blue
+	case logrus.DebugLevel, logrus.TraceLevel:
+		color = 0xffffff // white
 	}
-	_, err = h.sess.ChannelMessageSendEmbed(konfig.String("LogChannel"), &discordgo.MessageEmbed{
+	_, err := h.sess.ChannelMessageSendEmbed(konfig.String("LogChannel"), &discordgo.MessageEmbed{
 		Title:       "Log event",
-		Description: msg,
+		Description: e.Message,
+		Timestamp:   e.Time.Format(time.RFC3339),
+		Color:       color,
 	})
 	if err != nil {
 		return fmt.Errorf("error sending log embed: %v", err)
