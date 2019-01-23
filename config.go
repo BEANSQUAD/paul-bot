@@ -13,8 +13,17 @@ var DefaultGuildCfg = map[string]string{
 	"prefix": "!",
 }
 
-// SetupConfig registers a viper instance to load configuration values from a
-// file (e.g. API keys, persistent guild settings)
+// DefaultGlobalCfg contains the default options that should exist for the bot
+var DefaultGlobalCfg = map[string]string{
+	"DiscordAPIKey": "",
+	"GoogleAPIKey":  "",
+	"LogChannel":    "",
+	"StatusMessage": "paul-bot",
+}
+
+// SetupConfig registers a viper instance, setting default values
+// for the bot and to load configuration values from a file
+// (e.g. API keys, persistent guild settings)
 func SetupConfig() error {
 	viper.SetConfigType("toml")
 	viper.SetConfigName("vars")
@@ -24,6 +33,16 @@ func SetupConfig() error {
 	if err != nil {
 		return err
 	}
+
+	for k, v := range DefaultGlobalCfg {
+		viper.SetDefault(k, v)
+	}
+
+	err = viper.WriteConfig()
+	if err != nil {
+		return err
+	}
+
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		log.Debugf("Config file changed: %v", e.Name)
@@ -32,6 +51,7 @@ func SetupConfig() error {
 }
 
 func configSet(key string, value interface{}) error {
+	// shouldn't be needed due to WatchConfig() looking for changes
 	err := viper.MergeInConfig()
 	if err != nil {
 		return err

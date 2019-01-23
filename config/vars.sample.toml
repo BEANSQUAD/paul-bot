@@ -8,3 +8,6 @@ GoogleAPIKey = ""
 # ID of the discord channel you want to send logs to (right click, copy id in
 # Discord to find)
 LogChannel = ""
+
+# bot's currently "playing" message
+StatusMessage = "paul-bot"
