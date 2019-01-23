@@ -2,8 +2,9 @@ package main
 
 import (
 	"github.com/Necroforger/dgrouter/exrouter"
+	"github.com/bwmarrin/discordgo"
 	"github.com/fsnotify/fsnotify"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -25,7 +26,7 @@ func SetupConfig() error {
 	}
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		logrus.Debugf("Config file changed: %v", e.Name)
+		log.Debugf("Config file changed: %v", e.Name)
 	})
 	return nil
 }
@@ -42,8 +43,8 @@ func configSet(key string, value interface{}) error {
 	if err != nil {
 		return err
 	}
+	return nil
 }
-
 
 func initGuildCfg(s *discordgo.Session, e *discordgo.GuildCreate) {
 	if e.Guild.Unavailable {
