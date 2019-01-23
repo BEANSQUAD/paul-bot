@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -27,4 +28,22 @@ func SetupConfig() error {
 		logrus.Debugf("Config file changed: %v", e.Name)
 	})
 	return nil
+}
+
+func configSet(key string, value interface{}) error {
+	err := viper.MergeInConfig()
+	if err != nil {
+		return err
+	}
+
+	viper.Set(key, value)
+
+	err = viper.WriteConfig()
+	if err != nil {
+		return err
+	}
+}
+func GuildConfigSet(ctx *exrouter.Context) {
+}
+func GlobalConfigSet(ctx *exrouter.Context) {
 }
