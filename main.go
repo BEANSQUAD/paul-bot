@@ -56,8 +56,10 @@ func main() {
 	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
 		guildCfg := konfig.StringMapString("guildCfg-" + m.GuildID)
 		if guildCfg == nil { // map zero type is nil
+			log.Infof("guildCfg-%v is nil, setting default", m.GuildID)
 			konfig.Set("guildCfg-"+m.GuildID, DefaultGuildCfg)
 		}
+		log.Infof("prefix is: %v", guildCfg["prefix"])
 		router.FindAndExecute(dg, guildCfg["prefix"], dg.State.User.ID, m.Message)
 	})
 
@@ -84,8 +86,10 @@ func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
 	}
 	guildCfg := konfig.StringMapString("guildCfg-" + e.Guild.ID)
 	if guildCfg == nil { // map zero type is nil
+		log.Infof("guildCfg-%v is nil, setting default", m.GuildID)
 		konfig.Set("guildCfg-"+e.Guild.ID, DefaultGuildCfg)
 	}
+	log.Infof("guildCfg-%v contents: %v", e.Guild.ID, guildCfg)
 }
 
 // Exit disconnects the bot from any voice channels, and calls os.Exit.
