@@ -83,6 +83,9 @@ func initGuildCfg(s *discordgo.Session, e *discordgo.GuildCreate) {
 func GuildConfigSet(ctx *exrouter.Context) {
 	key := ctx.Args.Get(1)
 	value := ctx.Args.Get(2)
+	if key == "" || value == "" {
+		return
+	}
 	guildKey := fmt.Sprintf("guild.%v.%v", ctx.Msg.GuildID, key)
 
 	err := configSet(guildKey, value)
