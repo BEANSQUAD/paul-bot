@@ -53,7 +53,10 @@ func main() {
 	dg.AddHandler(ready)
 	dg.AddHandler(guildCreate)
 
-	dg.AddHandler(func(_ *discordgo.Session, m *discordgo.MessageCreate) {
+	dg.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
+		if m.Author.ID == s.State.User.ID {
+			return
+		}
 		guildCfg := konfig.StringMapString("guildCfg-" + m.GuildID)
 		if guildCfg == nil { // map zero type is nil
 			log.Infof("guildCfg-%v is nil, setting default", m.GuildID)
