@@ -90,7 +90,7 @@ func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
 		viper.SetDefault("guild."+e.Guild.ID, DefaultGuildCfg)
 		err := viper.WriteConfig()
 		if err != nil {
-			log.Errorf("error writing guild %v config: %v" e.Guild.ID, err)
+			log.Errorf("error writing guild %v config: %v", e.Guild.ID, err)
 		}
 	}
 	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
