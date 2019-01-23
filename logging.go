@@ -48,7 +48,7 @@ func SetupLogger(s *discordgo.Session) {
 	logrus.AddHook(&DiscordHook{s})
 }
 
-func Log(ctx *exrouter.Context) {
+func GenerateLogEvent(ctx *exrouter.Context) {
 	msg := ctx.Args.After(2)
 	level, err := logrus.ParseLevel(ctx.Args.Get(1))
 	if err != nil { // no level in first arg

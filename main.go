@@ -48,7 +48,7 @@ func main() {
 	router.On("buffer", Buffer).Desc("tweaks the websocket audio buffer frame count")
 
 	// logging
-	router.On("log", Log).Desc("makes a call to log.Print with a message")
+	router.On("log", GenerateLogEvent).Desc("makes a call to log.Print with a message")
 
 	// config
 	router.On("set", GuildConfigSet).Desc("changes settings for the current server")
