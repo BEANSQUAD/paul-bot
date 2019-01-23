@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/fsnotify/fsnotify"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -24,7 +24,7 @@ func SetupConfig() error {
 	}
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		log.Debugf("Config file changed: %v", e.Name)
+		logrus.Debugf("Config file changed: %v", e.Name)
 	})
 	return nil
 }
