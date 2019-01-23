@@ -85,14 +85,19 @@ func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
 	}
 	guildCfg := viper.GetStringMapString("guild." + e.Guild.ID)
 	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
-	if len(guildCfg) == 0 { // map zero type is nil
+	if len(guildCfg) == 0 {
 		log.Infof("setting guild %v to default %v", e.Guild.ID, guildCfg)
 		viper.SetDefault("guild."+e.Guild.ID, DefaultGuildCfg)
 		err := viper.WriteConfig()
 		if err != nil {
-			log.Errorf("error writing guild %v config: %v", e.Guild.ID, err)
+			log.Errorf("error writing config while setting %v: %v", e.Guild.ID, err)
+		}
+		err = viper.MergeInConfig()
+		if err != nil {
+			log.Errorf("error merging config while setting %v: %v", e.Guild.ID, err)
 		}
 	}
+	guildCfg = viper.GetStringMapString("guild." + e.Guild.ID)
 	log.Infof("guild.%v is %v", e.Guild.ID, guildCfg)
 }
 
