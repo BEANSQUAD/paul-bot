@@ -60,6 +60,8 @@ github.com/konsorten/go-windows-terminal-sequences v1.0.1 h1:mweAR1A6xJ3oS2pRaGi
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/lalamove/konfig v0.0.3 h1:mDYzQ7leC6lmt4vAa/lexHQqOh0KaNXgElP7C9EUr4w=
 github.com/lalamove/konfig v0.0.3/go.mod h1:WqU8c19IjgxmNTjDw0+2wukXCVkaCapALXtoDHPs1UI=
+github.com/lalamove/konfig v0.1.0 h1:Hs9Xtqd/qh9V5ghTSdwsq+XX2yz3fNBxoaPe6S6OyyM=
+github.com/lalamove/konfig v0.1.0/go.mod h1:WqU8c19IjgxmNTjDw0+2wukXCVkaCapALXtoDHPs1UI=
 github.com/lalamove/nui v0.0.2 h1:IRJtdO7Nozly61vVkfGUEklW7oJToIhqggX5YZLfkl4=
 github.com/lalamove/nui v0.0.2/go.mod h1:IMgw/td9JHjoU1dpHjGj6o1i7bSeG/UO1/DODuPdz+o=
 github.com/magiconair/properties v1.8.0 h1:LLgXmsheXeRoUOBOjtwPQCWIYqM/LU1ayDtDePerRcY=
@@ -69,6 +71,8 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5
 github.com/mitchellh/go-homedir v1.0.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mitchellh/mapstructure v1.1.2 h1:fmNYVwqnSfB9mZU6OS2O6GsXM+wcskZDuKQzvN1EDeE=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
+github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223 h1:F9x/1yl3T2AeKLr2AMdilSD8+f9bvMnNN8VS5iDtovc=
+github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/openzipkin/zipkin-go v0.1.1/go.mod h1:NtoC/o8u3JlF1lSlyPNswIbeQH9bJTmOf0Erfk+hxe8=
 github.com/pelletier/go-toml v1.2.0 h1:T5zMGML61Wp+FlcbWjRDT7yAxhJNAiPPLOFECq181zc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=

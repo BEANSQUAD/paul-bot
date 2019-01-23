@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,7 +11,7 @@ import (
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
-	"github.com/lalamove/konfig"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -19,12 +20,12 @@ func main() {
 		log.Fatalf("error setting up config: %v", err)
 	}
 
-	for konfig.String("DiscordAPIKey") == "" {
+	for viper.GetString("DiscordAPIKey") == "" {
 		log.Print("couldn't read DiscordAPIKey from config file")
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 
-	dg, err := discordgo.New("Bot " + konfig.String("DiscordAPIKey"))
+	dg, err := discordgo.New("Bot " + viper.GetString("DiscordAPIKey"))
 	if err != nil {
 		log.Printf("error creating Discord session: %v", err)
 		return
@@ -57,13 +58,9 @@ func main() {
 		if m.Author.ID == s.State.User.ID {
 			return
 		}
-		guildCfg := konfig.StringMapString("guildCfg-" + m.GuildID)
-		if guildCfg == nil { // map zero type is nil
-			log.Infof("guildCfg-%v is nil, setting default", m.GuildID)
-			konfig.Set("guildCfg-"+m.GuildID, DefaultGuildCfg)
-		}
-		log.Infof("prefix is: %v", guildCfg["prefix"])
-		router.FindAndExecute(dg, guildCfg["prefix"], dg.State.User.ID, m.Message)
+		prefix := viper.GetString(fmt.Sprintf("guild.%v.prefix", m.GuildID))
+		log.Infof("prefix is: %v", prefix)
+		router.FindAndExecute(dg, prefix, dg.State.User.ID, m.Message)
 	})
 
 	// Open the websocket and begin listening for events.
@@ -87,12 +84,13 @@ func guildCreate(s *discordgo.Session, e *discordgo.GuildCreate) {
 	if e.Guild.Unavailable {
 		return
 	}
-	guildCfg := konfig.StringMapString("guildCfg-" + e.Guild.ID)
+	guildCfg := viper.Get("guild." + e.Guild.ID)
 	if guildCfg == nil { // map zero type is nil
-		log.Infof("guildCfg-%v is nil, setting default", e.Guild.ID)
-		konfig.Set("guildCfg-"+e.Guild.ID, DefaultGuildCfg)
+		log.Infof("guild.%v is nil, setting default", e.Guild.ID)
+		viper.Set(fmt.Sprintf("guild.%v", e.Guild.ID), DefaultGuildCfg)
+		viper.WriteConfig()
 	}
-	log.Infof("guildCfg-%v contents: %v", e.Guild.ID, guildCfg)
+	log.Infof("guild.%v contents: %v", e.Guild.ID, guildCfg)
 }
 
 // Exit disconnects the bot from any voice channels, and calls os.Exit.
