@@ -116,12 +116,11 @@ func Exit(ctx *exrouter.Context) {
 }
 
 func Log(ctx *exrouter.Context) {
-	args := ctx.Args.After(1)
-	msg := args[:len(args)]
-	level, err := log.ParseLevel(args[len(args):])
-	if err != nil { // no level in last arg
+	msg := ctx.Args.After(2)
+	level, err := log.ParseLevel(ctx.Args.Get(1))
+	if err != nil { // no level in first arg
 		log.Infof("logrus ParseLevel error: %v", err)
-		msg += args[len(args):]
+		msg = ctx.Args.Get(1) + " " + msg
 		level = log.InfoLevel
 	}
 	ctx.Reply(fmt.Sprintf("logged msg '%v' at level %v", msg, level))
