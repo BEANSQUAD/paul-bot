@@ -12,8 +12,8 @@ import (
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
-	"github.com/lalamove/konfig"
 	"github.com/rylio/ytdl"
+	"github.com/spf13/viper"
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/youtube/v3"
@@ -196,12 +196,12 @@ func Disconnect(ctx *exrouter.Context) {
 // Will return a specified amount of results in a map, along with any errors.
 // Errors occur should the bot not have an API key, or if it cannot search youtube.
 func ytSearch(query string, maxResults int64) (videos map[string]string, err error) {
-	if konfig.String("GoogleAPIKey") == "" {
+	if viper.GetString("GoogleAPIKey") == "" {
 		err := fmt.Errorf("GoogleAPIKey is not set in config file")
 		return nil, err
 	}
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: konfig.String("GoogleAPIKey")},
+		Transport: &transport.APIKey{Key: viper.GetString("GoogleAPIKey")},
 	}
 
 	service, err := youtube.New(client)

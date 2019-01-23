@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/lalamove/konfig"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type DiscordHook struct {
@@ -27,7 +27,7 @@ func (h *DiscordHook) Fire(e *logrus.Entry) error {
 	case logrus.DebugLevel, logrus.TraceLevel:
 		color = 0xffffff // white
 	}
-	_, err := h.sess.ChannelMessageSendEmbed(konfig.String("LogChannel"), &discordgo.MessageEmbed{
+	_, err := h.sess.ChannelMessageSendEmbed(viper.GetString("LogChannel"), &discordgo.MessageEmbed{
 		Title:       "Log event",
 		Description: e.Message,
 		Timestamp:   e.Time.Format(time.RFC3339),
