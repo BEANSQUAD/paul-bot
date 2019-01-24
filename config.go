@@ -18,10 +18,10 @@ var DefaultGuildCfg = map[string]string{
 
 // DefaultGlobalCfg contains the default options that should exist for the bot
 var DefaultGlobalCfg = map[string]string{
-	"DiscordAPIKey": "",
-	"GoogleAPIKey":  "",
-	"LogChannel":    "",
-	"StatusMessage": "paul-bot",
+	"discord-key":    "",
+	"google-key":     "",
+	"log-channel":    "",
+	"status-message": "paul-bot",
 }
 
 // SetupConfig registers a viper instance, setting default values

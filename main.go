@@ -20,12 +20,12 @@ func main() {
 		log.Fatalf("error setting up config: %v", err)
 	}
 
-	for viper.GetString("DiscordAPIKey") == "" {
-		log.Print("couldn't read DiscordAPIKey from config file")
+	for viper.GetString("discord-key") == "" {
+		log.Print("couldn't read discord-key from config file")
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 
-	dg, err := discordgo.New("Bot " + viper.GetString("DiscordAPIKey"))
+	dg, err := discordgo.New("Bot " + viper.GetString("discord-key"))
 	if err != nil {
 		log.Printf("error creating Discord session: %v", err)
 		return
@@ -82,7 +82,7 @@ func main() {
 }
 
 func ready(s *discordgo.Session, _ *discordgo.Ready) {
-	s.UpdateStatus(0, viper.GetString("StatusMessage"))
+	s.UpdateStatus(0, viper.GetString("status-message"))
 }
 
 // Exit disconnects the bot from any voice channels, and calls os.Exit.
