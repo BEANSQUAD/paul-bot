@@ -97,13 +97,13 @@ func GuildConfigSet(ctx *exrouter.Context) {
 	value := ctx.Args.Get(2)
 	guildKey := fmt.Sprintf("guild.%v.%v", ctx.Msg.GuildID, key)
 
-	if value == "" {
-		ctx.Reply(fmt.Sprintf("%v = %v", key, viper.Get(guildKey)))
+	if err := checkDefault(DefaultGuildCfg, guildKey); err != nil {
+		ctx.Reply(err)
 		return
 	}
 
-	if err := checkDefault(DefaultGuildCfg, guildKey); err != nil {
-		ctx.Reply(err)
+	if value == "" {
+		ctx.Reply(fmt.Sprintf("%v = %v", key, viper.Get(guildKey)))
 		return
 	}
 
@@ -119,13 +119,13 @@ func GlobalConfigSet(ctx *exrouter.Context) {
 	key := ctx.Args.Get(1)
 	value := ctx.Args.Get(2)
 
-	if value == "" {
-		ctx.Reply(fmt.Sprintf("%v = %v", key, viper.Get(key)))
+	if err := checkDefault(DefaultGlobalCfg, key); err != nil {
+		ctx.Reply(err)
 		return
 	}
 
-	if err := checkDefault(DefaultGlobalCfg, key); err != nil {
-		ctx.Reply(err)
+	if value == "" {
+		ctx.Reply(fmt.Sprintf("%v = %v", key, viper.Get(key)))
 		return
 	}
 
