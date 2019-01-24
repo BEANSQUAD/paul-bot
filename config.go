@@ -66,8 +66,12 @@ func initGuildCfg(s *discordgo.Session, e *discordgo.GuildCreate) {
 
 func configSet(key string, value string) error {
 	log.Infof("setting %v => %v", key, value)
-	viper.SetDefault(key, value)
-	err := viper.WriteConfig()
+	viper.Set(key, value)
+	err := viper.MergeInConfig()
+	if err != nil {
+		return fmt.Errorf("couldn't merge config: %v", err)
+	}
+	err = viper.WriteConfig()
 	if err != nil {
 		return fmt.Errorf("couldn't write config: %v", err)
 	}
