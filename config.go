@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
@@ -79,11 +80,13 @@ func configSet(key string, value string) error {
 }
 
 func checkDefault(defaultMap map[string]string, key string) error {
+	keyTrans := strings.Split(".", strings.ToLower(key))
+	key = keyTrans[len(keyTrans)-1]
 	validKeys := make([]string, 0, len(defaultMap))
+
 	for k := range defaultMap {
 		validKeys = append(validKeys, k)
 	}
-
 	err := fmt.Errorf("key %v must be one of %v", key, validKeys)
 
 	if _, ok := defaultMap[key]; !ok {
