@@ -61,11 +61,13 @@ func configSet(key string, value interface{}) error {
 
 	switch v := value.(type) {
 	case map[string]interface{}:
+		log.Infof("merging configmap %v => %v", key, v)
 		err := viper.MergeConfigMap(v)
 		if err != nil {
 			log.Errorf("could not merge config maps for %v: %v", key, v)
 		}
 	default:
+		log.Infof("setting %v = %v", key, v)
 		viper.Set(key, v)
 	}
 
