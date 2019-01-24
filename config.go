@@ -85,7 +85,7 @@ func checkDefault(defaultMap map[string]string, key string) error {
 	validKeys := make([]string, 0, len(defaultMap))
 
 	for k := range defaultMap {
-		validKeys = append(validKeys, k)
+		validKeys = append(validKeys, strings.ToLower(k))
 	}
 	err := fmt.Errorf("key %v must be one of %v", key, validKeys)
 
