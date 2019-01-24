@@ -52,32 +52,6 @@ func SetupConfig() error {
 	return nil
 }
 
-func configSet(key string, value interface{}) error {
-	// shouldn't be needed due to WatchConfig() looking for changes
-	err := viper.MergeInConfig()
-	if err != nil {
-		return err
-	}
-
-	switch v := value.(type) {
-	case map[string]interface{}:
-		log.Infof("merging configmap %v => %v", key, v)
-		err := viper.MergeConfigMap(v)
-		if err != nil {
-			log.Errorf("could not merge config maps for %v: %v", key, v)
-		}
-	default:
-		log.Infof("setting %v = %v", key, v)
-		viper.Set(key, v)
-	}
-
-	err = viper.WriteConfig()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func initGuildCfg(s *discordgo.Session, e *discordgo.GuildCreate) {
 	if e.Guild.Unavailable {
 		return
@@ -98,13 +72,18 @@ func GuildConfigSet(ctx *exrouter.Context) {
 	}
 	guildKey := fmt.Sprintf("guild.%v", ctx.Msg.GuildID)
 
-	valmap := make(map[string]string)
+	valmap := make(map[string]interface{})
 	valmap[key] = value
 
-	err := configSet(guildKey, valmap)
+	log.Infof("merging configmap %v => %v", key, valmap)
+	err := viper.MergeConfigMap(valmap)
 	if err != nil {
 		log.Errorf("could not set guild config %v to %v: %v", guildKey, value, err)
 		ctx.Reply(fmt.Sprintf("couldn't set %v to %v", key, value))
+	}
+	err = viper.WriteConfig()
+	if err != nil {
+		log.Errorf("couldn't write config: %v", err)
 	}
 	ctx.Reply(fmt.Sprintf("set %v to %v", key, value))
 }
