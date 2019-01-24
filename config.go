@@ -79,7 +79,7 @@ func configSet(key string, value string) error {
 }
 
 func checkDefault(defaultMap map[string]string, key string) error {
-	validKeys := make([]string, len(defaultMap))
+	validKeys := make([]string, 0, len(defaultMap))
 	for k := range defaultMap {
 		validKeys = append(validKeys, k)
 	}
