@@ -85,7 +85,7 @@ func checkDefault(defaultMap map[string]string, key string) error {
 	validKeys := make([]string, 0, len(defaultMap))
 
 	for k := range defaultMap {
-		if !strings.Contains("key", k) {
+		if !strings.Contains(k, "key") {
 			validKeys = append(validKeys, k)
 		}
 	}
