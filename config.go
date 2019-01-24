@@ -78,13 +78,35 @@ func configSet(key string, value string) error {
 	return nil
 }
 
+func checkDefault(defaultMap map[string]string, key string) error {
+	validKeys := make([]string, len(defaultMap))
+	for k := range defaultMap {
+		validKeys = append(validKeys, k)
+	}
+
+	err := fmt.Errorf("key %v must be one of %v", key, validKeys)
+
+	if _, ok := defaultMap[key]; !ok {
+		return err
+	}
+	return nil
+}
+
 func GuildConfigSet(ctx *exrouter.Context) {
 	key := ctx.Args.Get(1)
 	value := ctx.Args.Get(2)
-	if key == "" || value == "" {
+	guildKey := fmt.Sprintf("guild.%v.%v", ctx.Msg.GuildID, key)
+
+	if value == "" {
+		ctx.Reply(fmt.Sprintf("%v = %v", key, viper.Get(guildKey)))
 		return
 	}
-	guildKey := fmt.Sprintf("guild.%v.%v", ctx.Msg.GuildID, key)
+
+	if err := checkDefault(DefaultGuildCfg, guildKey); err != nil {
+		ctx.Reply(err)
+		return
+	}
+
 	err := configSet(guildKey, value)
 	if err != nil {
 		log.Errorf("couldn't set config %v => %v: %v", guildKey, value, err)
@@ -92,10 +114,18 @@ func GuildConfigSet(ctx *exrouter.Context) {
 
 	ctx.Reply(fmt.Sprintf("set %v to %v", key, value))
 }
+
 func GlobalConfigSet(ctx *exrouter.Context) {
 	key := ctx.Args.Get(1)
 	value := ctx.Args.Get(2)
-	if key == "" || value == "" {
+
+	if value == "" {
+		ctx.Reply(fmt.Sprintf("%v = %v", key, viper.Get(key)))
+		return
+	}
+
+	if err := checkDefault(DefaultGlobalCfg, key); err != nil {
+		ctx.Reply(err)
 		return
 	}
 
