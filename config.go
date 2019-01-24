@@ -73,7 +73,7 @@ func GuildConfigSet(ctx *exrouter.Context) {
 	guildKey := fmt.Sprintf("guild.%v", ctx.Msg.GuildID)
 
 	valmap := make(map[string]interface{})
-	valmap[key] = value
+	valmap[guildKey] = value
 
 	log.Infof("merging configmap %v => %v", key, valmap)
 	err := viper.MergeConfigMap(valmap)
