@@ -87,6 +87,7 @@ func checkDefault(defaultMap map[string]string, key string) error {
 	err := fmt.Errorf("key %v must be one of %v", key, validKeys)
 
 	if _, ok := defaultMap[key]; !ok {
+		log.Infof("%#v is not in %#v", key, defaultMap)
 		return err
 	}
 	return nil
