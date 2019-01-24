@@ -59,7 +59,15 @@ func configSet(key string, value interface{}) error {
 		return err
 	}
 
-	viper.Set(key, value)
+	switch v := value.(type) {
+	case map[string]interface{}:
+		err := viper.MergeConfigMap(v)
+		if err != nil {
+			log.Errorf("could not merge config maps for %v: %v", key, v)
+		}
+	default:
+		viper.Set(key, v)
+	}
 
 	err = viper.WriteConfig()
 	if err != nil {
@@ -86,9 +94,12 @@ func GuildConfigSet(ctx *exrouter.Context) {
 	if key == "" || value == "" {
 		return
 	}
-	guildKey := fmt.Sprintf("guild.%v.%v", ctx.Msg.GuildID, key)
+	guildKey := fmt.Sprintf("guild.%v", ctx.Msg.GuildID)
 
-	err := configSet(guildKey, value)
+	valmap := make(map[string]string)
+	valmap[key] = value
+
+	err := configSet(guildKey, valmap)
 	if err != nil {
 		log.Errorf("could not set guild config %v to %v: %v", guildKey, value, err)
 		ctx.Reply(fmt.Sprintf("couldn't set %v to %v", key, value))
