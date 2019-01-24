@@ -73,7 +73,7 @@ func GuildConfigSet(ctx *exrouter.Context) {
 	guildKey := fmt.Sprintf("guild.%v.%v", ctx.Msg.GuildID, key)
 
 	log.Infof("setting %v => %v", guildKey, value)
-	viper.Set(guildKey, value)
+	viper.SetDefault(guildKey, value)
 	err := viper.WriteConfig()
 	if err != nil {
 		log.Errorf("couldn't write config: %v", err)
