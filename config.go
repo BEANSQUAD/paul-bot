@@ -64,6 +64,16 @@ func initGuildCfg(s *discordgo.Session, e *discordgo.GuildCreate) {
 	}
 }
 
+func configSet(key string, value string) error {
+	log.Infof("setting %v => %v", key, value)
+	viper.SetDefault(key, value)
+	err := viper.WriteConfig()
+	if err != nil {
+		return fmt.Errorf("couldn't write config: %v", err)
+	}
+	return nil
+}
+
 func GuildConfigSet(ctx *exrouter.Context) {
 	key := ctx.Args.Get(1)
 	value := ctx.Args.Get(2)
@@ -71,13 +81,11 @@ func GuildConfigSet(ctx *exrouter.Context) {
 		return
 	}
 	guildKey := fmt.Sprintf("guild.%v.%v", ctx.Msg.GuildID, key)
-
-	log.Infof("setting %v => %v", guildKey, value)
-	viper.SetDefault(guildKey, value)
-	err := viper.WriteConfig()
+	err := configSet(guildKey, value)
 	if err != nil {
-		log.Errorf("couldn't write config: %v", err)
+		log.Errorf("couldn't set config %v => %v: %v", guildKey, value, err)
 	}
+
 	ctx.Reply(fmt.Sprintf("set %v to %v", key, value))
 }
 func GlobalConfigSet(ctx *exrouter.Context) {
