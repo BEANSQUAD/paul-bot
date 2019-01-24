@@ -89,11 +89,10 @@ func checkDefault(defaultMap map[string]string, key string) error {
 			validKeys = append(validKeys, k)
 		}
 	}
-	err := fmt.Errorf("key %v must be one of %v", key, validKeys)
 
 	if _, ok := defaultMap[key]; !ok || !strings.Contains(key, "key") {
 		log.Infof("%#v is not in %#v", key, defaultMap)
-		return err
+		return fmt.Errorf("key %v must be one of %v", key, validKeys)
 	}
 	return nil
 }
