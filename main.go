@@ -57,6 +57,9 @@ func main() {
 	// misc
 	router.On("exit", Exit).Desc("exits the bot")
 
+	// TEMP POO, ALEX NO HURT ME
+	router.On("poo", tempPoo).Desc("returns the url of cytube/memebase")
+
 	dg.AddHandler(ready)
 	dg.AddHandler(initGuildCfg)
 
@@ -83,6 +86,10 @@ func main() {
 
 func ready(s *discordgo.Session, _ *discordgo.Ready) {
 	s.UpdateStatus(0, viper.GetString("status-message"))
+}
+
+func tempPoo(ctx *exrouter.Context){
+	ctx.Reply("https://cytu.be/r/meme_base password: botnetqq")
 }
 
 // Exit disconnects the bot from any voice channels, and calls os.Exit.
