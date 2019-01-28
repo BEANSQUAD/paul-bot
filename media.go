@@ -62,7 +62,7 @@ func handleErr(err error, output string) {
 // Throws an error if it cannot stop the media properly.
 func Stop(ctx *exrouter.Context) {
 	if player.sSession != nil {
-		player.vQueue = player.vQueue[:0]
+		player.vQueue = player.vQueue[:1]
 		if player.eSession.Running() {
 			player.stopAudio()
 			ctx.Reply("Stopping")
@@ -140,7 +140,7 @@ func Play(ctx *exrouter.Context) {
 
 		if player.eSession == nil || !player.eSession.Running() {
 			defer ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
-			startQueue()
+			go startQueue()
 		}
 	} else {
 		defer ctx.Reply("YoutubeAPI Quota Exceeded")
