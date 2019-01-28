@@ -36,17 +36,30 @@ type videoQuery struct {
 	requester *discordgo.User
 }
 
+func (plr *Player) skipAudio() {
+	plr.Lock()
+	plr.stopAudio()
+	plr.Unlock()
+}
+
 func (plr *Player) stopAudio() {
 	err := plr.eSession.Stop()
 	handleErr(err, "error stopping streaming session")
 	plr.eSession.Cleanup()
 }
-func (plr *Player) disconnect() {
-	err := plr.vConn.Speaking(false)
-	handleErr(err, "error setting vConn.Speaking()")
 
-	err = plr.vConn.Disconnect()
-	handleErr(err, "error calling vConn.Disconnect()")
+func (plr *Player) disconnect() bool {
+	if player.vConn == nil {
+		log.Print("Tried to Disconnect when no VoiceConnections existed")
+		return false
+	} else {
+		err := plr.vConn.Speaking(false)
+		handleErr(err, "error setting vConn.Speaking()")
+
+		err = plr.vConn.Disconnect()
+		handleErr(err, "error calling vConn.Disconnect()")
+		return true
+	}
 }
 
 // handleErr handles an error, checking if the error returned from a function isn't nil.
@@ -152,13 +165,11 @@ func Play(ctx *exrouter.Context) {
 // Prints to the channel the new media that is being played.
 func Skip(ctx *exrouter.Context) {
 	if len(player.vQueue) > 1 {
-		player.Lock()
-		player.stopAudio()
-		player.Unlock()
+		player.skipAudio()
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[1].videoInfo.ID))
 	} else {
+		player.disconnect()
 		ctx.Reply("Current Song is Last In Queue, Stopping")
-		Stop(ctx)
 	}
 }
 
@@ -183,12 +194,10 @@ func startQueue() {
 // Throws an error and prints to the channel if it tries to disconnect when not in a channel.
 // Throws an error if it cannot disconnect from the current voice channel properly.
 func Disconnect(ctx *exrouter.Context) {
-	if player.vConn == nil {
-		log.Print("Tried to Disconnect when no VoiceConnections existed")
+	connected := player.disconnect()
+	if !connected {
 		ctx.Reply("No VoiceConnections to disconnect")
-		return
 	} else {
-		player.disconnect()
 		ctx.Reply("Disconnected")
 	}
 }
