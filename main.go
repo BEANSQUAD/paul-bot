@@ -93,14 +93,7 @@ func tempPoo(ctx *exrouter.Context) {
 
 // Exit disconnects the bot from any voice channels, and calls os.Exit.
 func Exit(ctx *exrouter.Context) {
-	err := player.vConn.Speaking(false)
-	if err != nil {
-		log.Printf("error setting vConn.Speaking(): %v", err)
-	}
-	err = player.vConn.Disconnect()
-	if err != nil {
-		log.Printf("error calling vConn.Disconnect(): %v", err)
-	}
+	Disconnect(ctx)
 	ctx.Reply("Exiting")
 	defer os.Exit(0)
 }
