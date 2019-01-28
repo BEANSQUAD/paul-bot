@@ -95,5 +95,6 @@ func tempPoo(ctx *exrouter.Context) {
 func Exit(ctx *exrouter.Context) {
 	Disconnect(ctx)
 	log.Printf("Exiting")
+	ctx.Ses.Close()
 	defer os.Exit(0)
 }
