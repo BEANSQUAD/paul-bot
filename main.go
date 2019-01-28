@@ -102,5 +102,5 @@ func Exit(ctx *exrouter.Context) {
 		log.Printf("error calling vConn.Disconnect(): %v", err)
 	}
 	ctx.Reply("Exiting")
-	os.Exit(0)
+	defer os.Exit(0)
 }
