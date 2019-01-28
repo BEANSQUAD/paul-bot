@@ -94,7 +94,10 @@ func tempPoo(ctx *exrouter.Context) {
 // Exit disconnects the bot from any voice channels, and calls os.Exit.
 func Exit(ctx *exrouter.Context) {
 	Disconnect(ctx)
-	log.Printf("Exiting")
+	if !player.disconnect() {
+		log.Printf("No VoiceConnections to disconnect")
+	}
+	ctx.Reply("Exiting")
 	ctx.Ses.Close()
 	defer os.Exit(0)
 }
