@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 
 	log "github.com/sirupsen/logrus"
 
@@ -23,7 +22,6 @@ var player Player
 // Player is a struct grouping together relevant information about the bot's playing capabilities.
 // This ensures consistency across play calls.
 type Player struct {
-	sync.Mutex
 	eSession *dca.EncodeSession
 	sSession *dca.StreamingSession
 	vConn    *discordgo.VoiceConnection
@@ -36,10 +34,14 @@ type videoQuery struct {
 	requester *discordgo.User
 }
 
-func (plr *Player) skipAudio() {
-	plr.Lock()
-	plr.stopAudio()
-	plr.Unlock()
+func (plr *Player) skipAudio() bool {
+	if len(plr.vQueue) > 1 {
+		plr.stopAudio()
+		return true
+	} else {
+		plr.disconnect()
+		return false
+	}
 }
 
 func (plr *Player) stopAudio() {
@@ -48,8 +50,21 @@ func (plr *Player) stopAudio() {
 	plr.eSession.Cleanup()
 }
 
+func (plr *Player) stop() bool {
+	if plr.sSession != nil {
+		plr.vQueue = plr.vQueue[:1]
+		if plr.eSession.Running() {
+			plr.stopAudio()
+			plr.disconnect()
+		}
+		return true
+	} else {
+		return false
+	}
+}
+
 func (plr *Player) disconnect() bool {
-	if player.vConn == nil {
+	if plr.vConn == nil {
 		log.Print("Tried to Disconnect when no VoiceConnections existed")
 		return false
 	} else {
@@ -60,6 +75,28 @@ func (plr *Player) disconnect() bool {
 		handleErr(err, "error calling vConn.Disconnect()")
 		return true
 	}
+}
+
+func (plr *Player) pause() bool {
+	if plr.sSession != nil {
+		if plr.sSession.Paused() {
+			plr.sSession.SetPaused(false)
+		} else {
+			plr.sSession.SetPaused(true)
+		}
+		return true
+	} else {
+		return false
+	}
+}
+
+func (plr *Player) startQueue() {
+	for len(plr.vQueue) > 0 {
+		playSound(*plr.vQueue[0].videoInfo)
+		player.vQueue = plr.vQueue[1:]
+	}
+	player.stopAudio()
+	player.disconnect()
 }
 
 // handleErr handles an error, checking if the error returned from a function isn't nil.
@@ -74,13 +111,8 @@ func handleErr(err error, output string) {
 // If there is nothing playing, will tell the channel as much.
 // Throws an error if it cannot stop the media properly.
 func Stop(ctx *exrouter.Context) {
-	if player.sSession != nil {
-		player.vQueue = player.vQueue[:1]
-		if player.eSession.Running() {
-			player.stopAudio()
-			ctx.Reply("Stopping")
-			Disconnect(ctx)
-		}
+	if player.stop() {
+		ctx.Reply("Stopping")
 	} else {
 		ctx.Reply("No Sound to Stop")
 	}
@@ -89,14 +121,8 @@ func Stop(ctx *exrouter.Context) {
 // Pause toggles the currently playing media between paused and playing.
 // Prints to the channel when it does either, or if there is nothing to pause.
 func Pause(ctx *exrouter.Context) {
-	if player.sSession != nil {
-		if player.sSession.Paused() {
-			ctx.Reply("Resuming")
-			player.sSession.SetPaused(false)
-		} else {
-			ctx.Reply("Pausing")
-			player.sSession.SetPaused(true)
-		}
+	if player.pause() {
+		ctx.Reply("Toggleing Pause")
 	} else {
 		ctx.Reply("No Sound to Pause")
 	}
@@ -145,15 +171,13 @@ func Play(ctx *exrouter.Context) {
 		videoStruct, err := ytdl.GetVideoInfo(vids[0])
 		handleErr(err, "Error Getting Video Info")
 
-		player.Lock()
 		player.vQueue = append(player.vQueue, videoQuery{videoStruct, ctx.Args.After(1), ctx.Msg.Author})
-		player.Unlock()
 
 		defer ctx.Reply(fmt.Sprintf("Added " + vids[0] + " to queue"))
 
 		if player.eSession == nil || !player.eSession.Running() {
 			defer ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
-			go startQueue()
+			go player.startQueue()
 		}
 	} else {
 		defer ctx.Reply("YoutubeAPI Quota Exceeded")
@@ -164,11 +188,9 @@ func Play(ctx *exrouter.Context) {
 // Skip skips the currently playing media, moving to the next one.
 // Prints to the channel the new media that is being played.
 func Skip(ctx *exrouter.Context) {
-	if len(player.vQueue) > 1 {
-		player.skipAudio()
+	if player.skipAudio() {
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[1].videoInfo.ID))
 	} else {
-		player.disconnect()
 		ctx.Reply("Current Song is Last In Queue, Stopping")
 	}
 }
@@ -181,21 +203,11 @@ func Queue(ctx *exrouter.Context) {
 	}
 }
 
-func startQueue() {
-	for len(player.vQueue) > 0 {
-		playSound(*player.vQueue[0].videoInfo)
-		player.vQueue = player.vQueue[1:]
-	}
-	player.stopAudio()
-	player.disconnect()
-}
-
 // Disconnect disconnects the bot from it's current voice channel, and prints to the channel as such.
 // Throws an error and prints to the channel if it tries to disconnect when not in a channel.
 // Throws an error if it cannot disconnect from the current voice channel properly.
 func Disconnect(ctx *exrouter.Context) {
-	connected := player.disconnect()
-	if !connected {
+	if !player.disconnect() {
 		ctx.Reply("No VoiceConnections to disconnect")
 	} else {
 		ctx.Reply("Disconnected")
