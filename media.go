@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -25,17 +24,29 @@ var player Player
 // This ensures consistency across play calls.
 type Player struct {
 	sync.Mutex
-	eSession   *dca.EncodeSession
-	sSession   *dca.StreamingSession
-	vConn      *discordgo.VoiceConnection
-	vQueue     []videoQuery
-	bufferSize int
+	eSession *dca.EncodeSession
+	sSession *dca.StreamingSession
+	vConn    *discordgo.VoiceConnection
+	vQueue   []videoQuery
 }
 
 type videoQuery struct {
 	videoInfo *ytdl.VideoInfo
 	query     string
 	requester *discordgo.User
+}
+
+func (plr *Player) stopAudio() {
+	err := plr.eSession.Stop()
+	handleErr(err, "error stopping streaming session")
+	plr.eSession.Cleanup()
+}
+func (plr *Player) disconnect() {
+	err := plr.vConn.Speaking(false)
+	handleErr(err, "error setting vConn.Speaking()")
+
+	err = plr.vConn.Disconnect()
+	handleErr(err, "error calling vConn.Disconnect()")
 }
 
 // handleErr handles an error, checking if the error returned from a function isn't nil.
@@ -53,22 +64,13 @@ func Stop(ctx *exrouter.Context) {
 	if player.sSession != nil {
 		player.vQueue = player.vQueue[:0]
 		if player.eSession.Running() {
+			player.stopAudio()
 			ctx.Reply("Stopping")
-			err := player.eSession.Stop()
-			handleErr(err, "Error Stopping Encoding Session")
 			Disconnect(ctx)
 		}
 	} else {
 		ctx.Reply("No Sound to Stop")
 	}
-}
-
-func Buffer(ctx *exrouter.Context) {
-	log.Printf("Buffer Change Request")
-	var err error
-	player.bufferSize, err = strconv.Atoi(ctx.Args[1])
-	handleErr(err, "Failed to parse buffer input")
-	log.Printf("Current Buffer: %v", player.bufferSize)
 }
 
 // Pause toggles the currently playing media between paused and playing.
@@ -108,14 +110,15 @@ func getVidString(input string) []string {
 // joining the channel, or searching for/retrieving the media requested.
 // Prints to the current channel the retrieved media.
 func Play(ctx *exrouter.Context) {
-	player.Lock()
 
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
+
 	var vSes string
 	for _, vs := range g.VoiceStates {
 		if vs.UserID == ctx.Msg.Author.ID {
 			vSes = vs.ChannelID
+			break
 		}
 	}
 
@@ -129,20 +132,19 @@ func Play(ctx *exrouter.Context) {
 		videoStruct, err := ytdl.GetVideoInfo(vids[0])
 		handleErr(err, "Error Getting Video Info")
 
+		player.Lock()
 		player.vQueue = append(player.vQueue, videoQuery{videoStruct, ctx.Args.After(1), ctx.Msg.Author})
-
 		player.Unlock()
 
-		ctx.Reply(fmt.Sprintf("Added " + vids[0] + " to queue"))
+		defer ctx.Reply(fmt.Sprintf("Added " + vids[0] + " to queue"))
 
 		if player.eSession == nil || !player.eSession.Running() {
-			ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
-			playSound(*player.vQueue[0].videoInfo)
+			defer ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", vids[0]))
+			startQueue()
 		}
 	} else {
-		ctx.Reply("YoutubeAPI Quota Exceeded")
+		defer ctx.Reply("YoutubeAPI Quota Exceeded")
 		Disconnect(ctx)
-		player.Unlock()
 	}
 }
 
@@ -151,9 +153,8 @@ func Play(ctx *exrouter.Context) {
 func Skip(ctx *exrouter.Context) {
 	if len(player.vQueue) > 1 {
 		player.Lock()
-		err := player.eSession.Stop()
+		player.stopAudio()
 		player.Unlock()
-		handleErr(err, "Error Stopping Encoding Session")
 		ctx.Reply(fmt.Sprintf("Playing: https://www.youtube.com/watch?v=%v", player.vQueue[1].videoInfo.ID))
 	} else {
 		ctx.Reply("Current Song is Last In Queue, Stopping")
@@ -169,6 +170,15 @@ func Queue(ctx *exrouter.Context) {
 	}
 }
 
+func startQueue() {
+	for len(player.vQueue) > 0 {
+		playSound(*player.vQueue[0].videoInfo)
+		player.vQueue = player.vQueue[1:]
+	}
+	player.stopAudio()
+	player.disconnect()
+}
+
 // Disconnect disconnects the bot from it's current voice channel, and prints to the channel as such.
 // Throws an error and prints to the channel if it tries to disconnect when not in a channel.
 // Throws an error if it cannot disconnect from the current voice channel properly.
@@ -177,19 +187,10 @@ func Disconnect(ctx *exrouter.Context) {
 		log.Print("Tried to Disconnect when no VoiceConnections existed")
 		ctx.Reply("No VoiceConnections to disconnect")
 		return
+	} else {
+		player.disconnect()
+		ctx.Reply("Disconnected")
 	}
-
-	err := player.vConn.Speaking(false)
-	if err != nil {
-		log.Printf("error setting vConn.Speaking(): %v", err)
-	}
-	err = player.vConn.Disconnect()
-	if err != nil {
-		log.Printf("error calling vConn.Disconnect(): %v", err)
-		ctx.Reply("couldn't Disconnect VoiceConnection")
-		return
-	}
-	ctx.Reply("Disconnected")
 }
 
 // ytSearch searches youtube for the specified string using the google API.
@@ -240,7 +241,7 @@ func ytSearch(query string, maxResults int64) (videos map[string]string, err err
 // playSound configures audio settings to a default, and plays the audio of a specified
 // youtube video from the queue.
 // Throws errors should the bot be unable to download, encode, or stream the audio.
-func playSound(videoInfo ytdl.VideoInfo) {
+func playSound(info ytdl.VideoInfo) {
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
 	options.Bitrate = 64
@@ -248,33 +249,21 @@ func playSound(videoInfo ytdl.VideoInfo) {
 	options.Volume = 256
 	options.CompressionLevel = 10
 	options.PacketLoss = 1
-	options.BufferedFrames = player.bufferSize
+	options.BufferedFrames = 100
 
-	format := videoInfo.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
-	downloadURL, err := videoInfo.GetDownloadURL(format)
+	format := info.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
+	downloadURL, err := info.GetDownloadURL(format)
 	handleErr(err, "Error Downloading Youtube Video")
 
 	player.eSession, err = dca.EncodeFile(downloadURL.String(), options)
 	handleErr(err, "Error Encoding Audio File")
+	defer player.eSession.Cleanup()
 
 	player.vConn.Speaking(true)
+	defer player.vConn.Speaking(false)
 
 	done := make(chan error)
 	player.sSession = dca.NewStream(player.eSession, player.vConn, done)
 	err = <-done
 	handleErr(err, "Error Streaming Audio File")
-	log.Printf(player.eSession.FFMPEGMessages())
-
-	player.vConn.Speaking(false)
-	player.eSession.Cleanup()
-
-	if len(player.vQueue) > 1 {
-		log.Printf("Playing Next In Queue")
-		player.vQueue = player.vQueue[1:]
-		defer playSound(*player.vQueue[0].videoInfo)
-	} else {
-		log.Printf("Disconnecting due to empty queue")
-		player.vQueue = player.vQueue[:0]
-		player.vConn.Disconnect()
-	}
 }

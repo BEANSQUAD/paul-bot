@@ -12,3 +12,4 @@
 *.out
 config/vars.toml
 paul-bot
+.DS_Store

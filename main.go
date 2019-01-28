@@ -45,7 +45,6 @@ func main() {
 	router.On("disconnect", Disconnect).Desc("disconnect from the current guilds voice channel")
 	router.On("skip", Skip).Desc("skips the currently playing video")
 	router.On("queue", Queue).Desc("shows the video queue")
-	router.On("buffer", Buffer).Desc("tweaks the websocket audio buffer frame count")
 
 	// logging
 	router.On("log", GenerateLogEvent).Desc("makes a call to log.Print with a message")
@@ -88,7 +87,7 @@ func ready(s *discordgo.Session, _ *discordgo.Ready) {
 	s.UpdateStatus(0, viper.GetString("status-message"))
 }
 
-func tempPoo(ctx *exrouter.Context){
+func tempPoo(ctx *exrouter.Context) {
 	ctx.Reply("https://cytu.be/r/meme_base password: botnetqq")
 }
 
