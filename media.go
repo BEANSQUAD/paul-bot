@@ -150,8 +150,6 @@ func getVidString(input string) []string {
 // Prints to the current channel the retrieved media.
 func Play(ctx *exrouter.Context) {
 
-	ctx.Reply("test")
-
 	g, err := ctx.Ses.State.Guild(ctx.Msg.GuildID)
 	handleErr(err, "Error Getting Guild Information")
 
